@@ -6,6 +6,7 @@ import firebase from 'firebase/app'
 import "firebase/auth";
 import "firebase/firestore";
 import vuetify from './plugins/vuetify';
+import axios from 'axios';
 
 Vue.config.productionTip = false
 
@@ -14,6 +15,14 @@ const firebaseConfig = {
   projectId: "kdrama-watchers",
 };
 firebase.initializeApp(firebaseConfig);
+
+axios.interceptors.request.use(config => {
+  if (!config.url.includes('http://') || !config.url.includes('https://')) {
+    config.url = `https://drama.fandom.com/es${config.url}&format=json&origin=*`;
+  }
+
+  return config;
+}, error => Promise.reject(error));
 
 let app;
 
