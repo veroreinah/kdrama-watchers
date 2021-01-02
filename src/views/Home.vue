@@ -17,16 +17,47 @@
         color="primary"
       ></v-progress-linear>
 
-      <div v-else-if="data && data.length">
-        <div v-for="result in data" :key="result.id">
-          {{ result.id }} - {{ result.title }}
-          <br>
-          <img v-if="result.image" :src="result.image" />
+      <div class="row" v-else-if="data && data.length">
+        <div
+          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          v-for="result in data" :key="result.id"
+        >
+          <v-card elevation="2" tile>
+            <v-img
+              :src="result.image || mobileBg"
+              class="white--text align-end"
+              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+              height="200px"
+            >
+              <v-card-title v-text="result.title"></v-card-title>
+            </v-img>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn icon>
+                <v-icon>mdi-information</v-icon>
+              </v-btn>
+
+              <v-btn icon>
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+
+              <v-btn icon>
+                <v-icon>mdi-heart</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
         </div>
       </div>
 
       <div v-else-if="data && !data.length">
-        no data
+        <v-card color="primary" dark>
+          <v-card-title class="headline">
+            <span>We couldn't find any results that match <strong>"{{ query }}"</strong>.</span>
+          </v-card-title>
+          <v-card-subtitle>Try another search!</v-card-subtitle>
+        </v-card>
       </div>
     </div>
   </div>
@@ -34,6 +65,7 @@
 
 <script>
 import axios from 'axios';
+import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 
 export default {
   name: 'Home',
@@ -41,7 +73,13 @@ export default {
     query: '',
     loading: false,
     data: null,
+    mobileBg,
   }),
+  watch: {
+    query() {
+      this.data = null;
+    },
+  },
   methods: {
     search() {
       if (this.query) {

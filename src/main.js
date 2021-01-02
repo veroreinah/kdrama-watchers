@@ -17,7 +17,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 axios.interceptors.request.use(config => {
-  if (!config.url.includes('http://') || !config.url.includes('https://')) {
+  if (!config.url.includes('http://') && !config.url.includes('https://')) {
     config.url = `https://drama.fandom.com/es${config.url}&format=json&origin=*`;
   }
 
