@@ -5,6 +5,8 @@
       label="Search next k-drama to watch..."
       outlined
       clearable
+      autofocus
+      autocomplete="off"
       append-icon="mdi-magnify"
       @keypress.enter="search"
       @click:append="search"
@@ -19,34 +21,52 @@
 
       <div class="row" v-else-if="data && data.length">
         <div
-          class="col-12 col-sm-6 col-md-4 col-lg-3"
+          class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <v-card elevation="2" tile>
-            <v-img
-              :src="result.image || mobileBg"
-              class="white--text align-end"
-              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              height="200px"
-            >
-              <v-card-title v-text="result.title"></v-card-title>
-            </v-img>
+          <v-card outlined tile>
+            <div class="d-flex">
+              <v-img
+                :src="result.image || mobileBg"
+                :lazy-src="mobileBg"
+                height="200"
+                width="140"
+                max-width="140"
+                gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"
+              />
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
+              <div class="flex-grow-1 d-flex flex-column justify-space-between">
+                <div>
+                  <v-card-title>{{ result.title }}</v-card-title>
+                  <div v-if="result.categories" class="pl-4 pr-3">
+                    <v-chip
+                      v-for="category in result.categories"
+                      :key="category"
+                      color="primary"
+                      outlined
+                      small
+                      class="mr-1 mb-1"
+                    >{{ category }}</v-chip>
+                  </div>
+                </div>
 
-              <v-btn icon>
-                <v-icon>mdi-information</v-icon>
-              </v-btn>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
 
-              <v-btn icon>
-                <v-icon>mdi-eye</v-icon>
-              </v-btn>
+                  <v-btn icon>
+                    <v-icon>mdi-information</v-icon>
+                  </v-btn>
 
-              <v-btn icon>
-                <v-icon>mdi-heart</v-icon>
-              </v-btn>
-            </v-card-actions>
+                  <v-btn icon>
+                    <v-icon>mdi-eye</v-icon>
+                  </v-btn>
+
+                  <v-btn icon>
+                    <v-icon>mdi-heart</v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </div>
+            </div>
           </v-card>
         </div>
       </div>
@@ -92,7 +112,11 @@ export default {
               const imagesPerPage = {};
 
               const data = result.data.query.search.map(item => {
-                const imageName = item.snippet.match(/(Archivo:.*)\|thumb/);
+                let imageName = item.snippet.match(/(Archivo:.*)\|thumb/);
+                if (!imageName || imageName.length < 2) {
+                  imageName = item.snippet.match(/(Imagen:.*)\|thumb/);
+                }
+
                 if (imageName && imageName.length >= 2) {
                   imagesName.push(imageName[1]);
                   imagesPerPage[item.pageid] = imageName[1];
@@ -123,10 +147,19 @@ export default {
                   data.forEach(item => {
                     const image = images.find(image => image.title === imagesPerPage[item.id]);
                     if (image && image.imageinfo && image.imageinfo.length) {
-                      item['image'] = `${image.imageinfo[0].url}&origin=*`;
+                      item['image'] = image.imageinfo[0].url.replace('https://static', 'https://vignette');
                     }
                   });
                 }
+              }
+
+              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => d.title).join('|')}&cllimit=500`);
+              if (categoriesInfo.data && categoriesInfo.data.query.pages) {
+                data.forEach(item => {
+                  if (categoriesInfo.data.query.pages[item.id] && categoriesInfo.data.query.pages[item.id].categories) {
+                    item['categories'] = categoriesInfo.data.query.pages[item.id].categories.map(cat => cat.title.replace('Categoría:', ''));
+                  }
+                });
               }
 
               this.data = data;

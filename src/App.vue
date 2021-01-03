@@ -3,7 +3,7 @@
     <Header />
 
     <v-main>
-      <v-container style="height: 8000px;">
+      <v-container>
         <router-view></router-view>
       </v-container>
     </v-main>
