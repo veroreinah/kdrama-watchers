@@ -10,11 +10,11 @@ export default {
   ],
   watch: {
     list(value) {
-      console.log(value);
+      console.log('KdramasList', value);
     },
   },
   created() {
-    console.log(this.list);
+    console.log('KdramasList', this.list);
   }
 }
 </script>

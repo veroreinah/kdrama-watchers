@@ -26,7 +26,7 @@ axios.interceptors.request.use(config => {
 
 let app;
 
-firebase.auth().onAuthStateChanged(() => {
+firebase.auth().onAuthStateChanged(user => {
   if (!app) {
     app = new Vue({
       router,
@@ -34,5 +34,9 @@ firebase.auth().onAuthStateChanged(() => {
       vuetify,
       render: h => h(App)
     }).$mount('#app');
+  }
+
+  if (user) {
+    store.dispatch('saveUser', user);
   }
 });

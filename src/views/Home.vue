@@ -100,11 +100,15 @@
         </v-card>
       </div>
     </div>
+
+    <Login v-if="!user" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import { mapState } from "vuex";
+import Login from '@/components/Login';
 import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 
 export default {
@@ -132,10 +136,16 @@ export default {
       },
     ],
   }),
+  computed: {
+    ...mapState(["user"]),
+  },
   watch: {
     query() {
       this.data = null;
     },
+  },
+  components: {
+    Login,
   },
   methods: {
     search() {
