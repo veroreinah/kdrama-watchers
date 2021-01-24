@@ -1,5 +1,14 @@
 # kdrama-watchers
 
+Header image credits:
+
+- Photos by [boram kim](https://unsplash.com/@challengart?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)
+
+Color palette:
+
+- https://coolors.co/
+- https://mycolor.space/
+
 ## Project setup
 ```
 npm install
