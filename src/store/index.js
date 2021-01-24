@@ -8,10 +8,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     user: null,
+    pendingAction: null,
   },
   mutations: {
     SET_USER_DATA(state, user) {
       state.user = user;
+    },
+    SET_PENDING_ACTION(state, pendingAction) {
+      state.pendingAction = pendingAction;
     },
   },
   actions: {
@@ -31,8 +35,12 @@ export default new Vuex.Store({
 
       commit('SET_USER_DATA', null);
       if (router.currentRoute.name !== 'Home') {
-        router.push({ name: 'Home' })
+        router.push({ name: 'Home' });
       }
+    },
+
+    setPendingAction({ commit }, pendingAction) {
+      commit('SET_PENDING_ACTION', pendingAction);
     },
   },
 })

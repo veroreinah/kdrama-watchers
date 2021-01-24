@@ -80,7 +80,9 @@ export default {
             this.reset();
 
             if (localStorage.getItem('redirectAfterLogin')) {
-              this.$router.push(localStorage.getItem('redirectAfterLogin'));
+              const toRedirect = localStorage.getItem('redirectAfterLogin');
+              localStorage.removeItem('redirectAfterLogin');
+              this.$router.push(toRedirect);
             } else {
               this.$router.push({ name: "Home" });
             }
