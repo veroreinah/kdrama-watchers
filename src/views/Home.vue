@@ -53,17 +53,37 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
 
-                  <v-btn icon>
-                    <v-icon>mdi-information</v-icon>
-                  </v-btn>
-
-                  <v-btn icon>
-                    <v-icon>mdi-eye</v-icon>
-                  </v-btn>
-
-                  <v-btn icon>
-                    <v-icon>mdi-heart</v-icon>
-                  </v-btn>
+                  <v-menu offset-y left tile>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        icon
+                        color="primary"
+                        small
+                        v-bind="attrs"
+                        v-on="on"
+                      >
+                        <v-icon>mdi-plus-circle</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list dense>
+                      <v-list-item
+                        v-for="action in actions"
+                        :key="action.action"
+                      >
+                        <v-list-item-content>
+                          <v-btn
+                            text
+                            small
+                            color="secondary"
+                            @click="triggerAction(action.action, result)"
+                          >
+                            <v-icon left>{{ action.icon }}</v-icon>
+                            {{ action.label }}
+                          </v-btn>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </v-card-actions>
               </div>
             </div>
@@ -94,6 +114,23 @@ export default {
     loading: false,
     data: null,
     mobileBg,
+    actions: [
+      {
+        action: 'wishlist',
+        icon: 'mdi-heart-plus',
+        label: 'Wishlist',
+      },
+      {
+        action: 'currently-watching',
+        icon: 'mdi-eye-plus',
+        label: 'Currently watching',
+      },
+      {
+        action: 'already-watched',
+        icon: 'mdi-eye-check',
+        label: 'Already watched',
+      },
+    ],
   }),
   watch: {
     query() {
@@ -173,6 +210,9 @@ export default {
             this.loading = false;
           });
       }
+    },
+    triggerAction(action, kdrama) {
+      console.log('triggerAction', action, kdrama);
     },
   },
 }
