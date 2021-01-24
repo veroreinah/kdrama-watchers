@@ -24,70 +24,7 @@
           class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <v-card outlined tile>
-            <div class="d-flex">
-              <v-img
-                :src="result.image || mobileBg"
-                :lazy-src="mobileBg"
-                height="200"
-                width="140"
-                max-width="140"
-                gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"
-              />
-
-              <div class="flex-grow-1 d-flex flex-column justify-space-between">
-                <div>
-                  <v-card-title>{{ result.title }}</v-card-title>
-                  <div v-if="result.categories" class="pl-4 pr-3">
-                    <v-chip
-                      v-for="category in result.categories"
-                      :key="category"
-                      color="primary"
-                      outlined
-                      small
-                      class="mr-1 mb-1"
-                    >{{ category }}</v-chip>
-                  </div>
-                </div>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-
-                  <v-menu offset-y left tile>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        color="primary"
-                        small
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <v-icon>mdi-plus-circle</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list dense>
-                      <v-list-item
-                        v-for="action in actions"
-                        :key="action.action"
-                      >
-                        <v-list-item-content>
-                          <v-btn
-                            text
-                            small
-                            color="secondary"
-                            @click="triggerAction(action.action, result)"
-                          >
-                            <v-icon left>{{ action.icon }}</v-icon>
-                            {{ action.label }}
-                          </v-btn>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-card-actions>
-              </div>
-            </div>
-          </v-card>
+          <KdramaCard :kdrama="result" />
         </div>
       </div>
 
@@ -100,12 +37,16 @@
         </v-card>
       </div>
     </div>
+
+    <Login v-if="!user" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import mobileBg from '@/assets/img/header-bg-mobile.jpg';
+import { mapState } from "vuex";
+import KdramaCard from '@/components/KdramaCard';
+import Login from '@/components/Login';
 
 export default {
   name: 'Home',
@@ -113,29 +54,18 @@ export default {
     query: '',
     loading: false,
     data: null,
-    mobileBg,
-    actions: [
-      {
-        action: 'wishlist',
-        icon: 'mdi-heart-plus',
-        label: 'Wishlist',
-      },
-      {
-        action: 'currently-watching',
-        icon: 'mdi-eye-plus',
-        label: 'Currently watching',
-      },
-      {
-        action: 'already-watched',
-        icon: 'mdi-eye-check',
-        label: 'Already watched',
-      },
-    ],
   }),
+  computed: {
+    ...mapState(["user"]),
+  },
   watch: {
     query() {
       this.data = null;
     },
+  },
+  components: {
+    KdramaCard,
+    Login,
   },
   methods: {
     search() {
@@ -210,9 +140,6 @@ export default {
             this.loading = false;
           });
       }
-    },
-    triggerAction(action, kdrama) {
-      console.log('triggerAction', action, kdrama);
     },
   },
 }

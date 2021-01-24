@@ -22,7 +22,7 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn icon :to="{ name: 'Home' }">
+    <v-btn icon :to="{ name: 'Home' }" exact>
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
 
@@ -53,12 +53,27 @@
             </v-btn>
           </v-list-item-content>
         </v-list-item>
+        
+        <v-list-item v-if="user">
+          <v-list-item-content>
+            <v-btn
+              text
+              small
+              color="accent"
+              @click="logout"
+            >
+              <v-icon left>mdi-exit-to-app</v-icon>
+              Logout
+            </v-btn>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
 import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 import desktopBg from '@/assets/img/header-bg-desktop.jpg';
 
@@ -90,5 +105,11 @@ export default {
       },
     ]
   }),
+  computed: {
+    ...mapState(["user"]),
+  },
+  methods: {
+    ...mapActions(["logout"]),
+  },
 };
 </script>
