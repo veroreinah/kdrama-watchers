@@ -21,14 +21,13 @@
         color="primary"
       ></v-progress-linear>
 
-      <div class="row" v-else-if="kdramas && kdramas.length">
-        <div
-          class="col-12 col-sm-6 col-lg-4"
+      <v-expansion-panels tile v-else-if="kdramas && kdramas.length">
+        <v-expansion-panel
           v-for="drama in kdramas" :key="drama.id"
         >
-          <KdramaCard :kdrama="drama" />
-        </div>
-      </div>
+          <KdramaPanel :kdrama="drama" />
+        </v-expansion-panel>
+      </v-expansion-panels>
 
       <div v-else-if="kdramas && !kdramas.length">
         <v-card color="primary" dark>
@@ -43,7 +42,7 @@
 
 <script>
 import { mapActions } from 'vuex';
-import KdramaCard from '@/components/KdramaCard';
+import KdramaPanel from '@/components/KdramaPanel';
 import firebase from "firebase/app";
 import "firebase/firestore";
 
@@ -85,7 +84,7 @@ export default {
     },
   },
   components: {
-    KdramaCard,
+    KdramaPanel,
   },
   created() {
     const db = firebase.firestore();

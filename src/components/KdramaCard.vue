@@ -4,18 +4,18 @@
       <v-img
         :src="kdrama.image || mobileBg"
         :lazy-src="mobileBg"
-        height="200"
-        width="140"
-        max-width="140"
+        :height="small ? 100 : 200"
+        :width="small ? 70 : 140"
+        :max-width="small ? 70 : 140"
         gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"
       />
 
       <div class="flex-grow-1 d-flex flex-column justify-space-between">
         <div>
           <v-card-title>{{ kdrama.title }}</v-card-title>
-          <div v-if="kdrama.categories" class="pl-4 pr-3">
+          <div v-if="kdrama.genre || kdrama.categories" class="pl-4 pr-3">
             <v-chip
-              v-for="category in kdrama.categories"
+              v-for="category in (kdrama.genre || kdrama.categories)"
               :key="category"
               color="primary"
               outlined
@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <v-card-actions v-if="hasActions()">
+        <v-card-actions v-if="!hideActions && hasActions()">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -78,6 +78,8 @@ export default {
   name: 'KdramaCard',
   props: {
     kdrama: { type: Object, required: true },
+    small: { type: Boolean, default: false },
+    hideActions: { type: Boolean, default: false },
   },
   data: () => ({
     db: undefined,
@@ -180,25 +182,25 @@ export default {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
         const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
 
-        let genre;
-        let genreMatch = lastRevision.match(/Género.*?\s(.*)\n/m);
+        let genre = null;
+        let genreMatch = lastRevision.match(/(?:Género|Genero).*?\s(.*)\n/m);
         if (genreMatch && genreMatch.length === 2) {
           genre = genreMatch[1].split(/,/).map(g => g.trim());
         }
         
-        let episodes;
-        let episodesMatch = lastRevision.match(/Episodios.*?\s(.*)\n/m);
+        let episodes = null;
+        let episodesMatch = lastRevision.match(/Episodios.*?\s(?:''')?(.*)\n/m);
         if (episodesMatch && episodesMatch.length === 2) {
           episodes = episodesMatch[1];
         }
         
-        let synopsis;
+        let synopsis = null;
         let synopsisMatch = lastRevision.match(/Sinopsis\s==\n(.*?)\n==/s);
         if (synopsisMatch && synopsisMatch.length === 2) {
           synopsis = synopsisMatch[1];
         }
         
-        let trivia;
+        let trivia = null;
         let triviaMatch = lastRevision.match(/Curiosidades\s==\n(.*?)\n==/s);
         if (triviaMatch && triviaMatch.length === 2) {
           trivia = triviaMatch[1].split('*').map(t => t.trim()).filter(t => t);
