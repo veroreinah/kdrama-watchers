@@ -2,7 +2,7 @@
   <div class="home pt-5">
     <v-text-field
       v-model="query"
-      label="Search next k-drama to watch..."
+      label="Search k-drama..."
       outlined
       clearable
       autofocus

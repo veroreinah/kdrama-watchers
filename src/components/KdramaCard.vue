@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <v-card-actions>
+        <v-card-actions v-if="hasActions()">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -36,6 +36,8 @@
                 small
                 v-bind="attrs"
                 v-on="on"
+                :loading="loading"
+                :disabled="loading"
               >
                 <v-icon>mdi-plus-circle</v-icon>
               </v-btn>
@@ -66,8 +68,11 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { mapActions, mapState } from "vuex";
 import mobileBg from '@/assets/img/header-bg-mobile.jpg';
+import firebase from "firebase/app";
+import "firebase/firestore";
 
 export default {
   name: 'KdramaCard',
@@ -75,6 +80,8 @@ export default {
     kdrama: { type: Object, required: true },
   },
   data: () => ({
+    db: undefined,
+    loading: false,
     mobileBg,
     actions: [
       {
@@ -92,6 +99,11 @@ export default {
         icon: 'mdi-eye-check',
         label: 'Already watched',
       },
+      {
+        action: 'abandoned',
+        icon: 'mdi-heart-off',
+        label: 'Abandoned',
+      },
     ],
   }),
   computed: {
@@ -106,15 +118,100 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["setPendingAction"]),
-    triggerAction(action, kdrama) {
+    ...mapActions(["setPendingAction", "setSnackbar"]),
+    hasActions() {
+      return this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
+    },
+    async triggerAction(action, kdrama) {
+      this.loading = true;
+
       if (!this.user) {
         this.setPendingAction({ action, kdrama });
         this.$router.push({ name: 'Home', query: { doLogin: true } });
       } else {
-        console.log('triggerAction', action, kdrama);
+        const extraInfo = await this.getKramaInfo(kdrama.id, kdrama.title);
+        let dateStart = null;
+        let dateEnd = null;
+        const now = (new Date()).toJSON();
+
+        if (action !== 'wishlist') {
+          dateStart = now;
+        }
+        if (action === 'already-watched' || action === 'abandoned') {
+          dateEnd = now;
+        }
+
+        const toSave = {
+          ...kdrama,
+          ...extraInfo,
+          wikiaId: kdrama.id,
+          user: this.user.uid,
+          list: action,
+          dateAdd: now,
+          dateStart,
+          dateEnd,
+        };
+
+        delete toSave.id;
+
+        this.db.collection('kdramas').add(toSave)
+          .then(() => {
+            this.setSnackbar({
+              msg: `Kdrama ${toSave.title} successfully added to your ${action} list.`,
+              color: "success",
+              timeout: 5000
+            });
+          })
+          .catch(error => {
+            console.error(error);
+            this.setSnackbar({
+              msg: "There was an error while adding the kdrama.",
+              color: "error",
+              timeout: 10000
+            });
+          })
+          .finally(() => this.loading = false);
       }
     },
+    async getKramaInfo(id, title) {
+      const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${title}&rvslots=*&rvprop=content`);
+
+      if (kdramaInfo.data, kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
+        const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
+        const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
+
+        let genre;
+        let genreMatch = lastRevision.match(/Género.*?\s(.*)\n/m);
+        if (genreMatch && genreMatch.length === 2) {
+          genre = genreMatch[1].split(/,/).map(g => g.trim());
+        }
+        
+        let episodes;
+        let episodesMatch = lastRevision.match(/Episodios.*?\s(.*)\n/m);
+        if (episodesMatch && episodesMatch.length === 2) {
+          episodes = episodesMatch[1];
+        }
+        
+        let synopsis;
+        let synopsisMatch = lastRevision.match(/Sinopsis\s==\n(.*?)\n==/s);
+        if (synopsisMatch && synopsisMatch.length === 2) {
+          synopsis = synopsisMatch[1];
+        }
+        
+        let trivia;
+        let triviaMatch = lastRevision.match(/Curiosidades\s==\n(.*?)\n==/s);
+        if (triviaMatch && triviaMatch.length === 2) {
+          trivia = triviaMatch[1].split('*').map(t => t.trim()).filter(t => t);
+        }
+
+        return { genre, episodes, synopsis, trivia };
+      }
+
+      return {};
+    },
+  },
+  created() {
+    this.db = firebase.firestore();
   },
 }
 </script>
