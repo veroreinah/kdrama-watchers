@@ -24,7 +24,7 @@
           class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <KdramaCard :kdrama="result" />
+          <SearchCard :kdrama="result" />
         </div>
       </div>
 
@@ -45,7 +45,7 @@
 <script>
 import axios from 'axios';
 import { mapState } from "vuex";
-import KdramaCard from '@/components/KdramaCard';
+import SearchCard from '@/components/SearchCard';
 import Login from '@/components/Login';
 
 export default {
@@ -64,7 +64,7 @@ export default {
     },
   },
   components: {
-    KdramaCard,
+    SearchCard,
     Login,
   },
   methods: {
