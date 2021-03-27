@@ -9,6 +9,7 @@ export default new Vuex.Store({
   state: {
     user: null,
     pendingAction: null,
+    snackbar: null,
   },
   mutations: {
     SET_USER_DATA(state, user) {
@@ -16,6 +17,9 @@ export default new Vuex.Store({
     },
     SET_PENDING_ACTION(state, pendingAction) {
       state.pendingAction = pendingAction;
+    },
+    SET_SNACKBAR(state, snackbar) {
+      state.snackbar = snackbar;
     },
   },
   actions: {
@@ -41,6 +45,10 @@ export default new Vuex.Store({
 
     setPendingAction({ commit }, pendingAction) {
       commit('SET_PENDING_ACTION', pendingAction);
+    },
+
+    setSnackbar({ commit }, snackbar) {
+      commit("SET_SNACKBAR", snackbar);
     },
   },
 })
