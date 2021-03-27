@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div class="pt-5">
     <div class="mb-5">
       <v-chip
         v-for="r in routes" 
         :key="r.route" 
         :to="r.route"
-        :color="r.route.includes(list) ? 'accent' : 'secondary'"
+        :color="r.route.includes(list) ? 'accent' : 'primary'"
         class="mr-2"
       >
         <v-avatar left>
@@ -33,7 +33,7 @@
       <div v-else-if="kdramas && !kdramas.length">
         <v-card color="primary" dark>
           <v-card-title class="headline">
-            <span>You haven't added any kdrama to your <strong>"{{ list }}"</strong> list.</span>
+            <span>You haven't added any kdrama to your <strong>"{{ getListName() }}"</strong> list.</span>
           </v-card-title>
         </v-card>
       </div>
@@ -94,6 +94,12 @@ export default {
   },
   methods: {
     ...mapActions(["setSnackbar"]),
+    getListName() {
+      const list = this.routes.find(r => r.route.includes(this.list));
+      if (list) {
+        return list.label;
+      }
+    },
     getData() {
       this.loading = true;
       
