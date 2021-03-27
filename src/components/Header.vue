@@ -26,49 +26,13 @@
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
 
-    <v-menu offset-y left tile>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          icon
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon>mdi-dots-vertical</v-icon>
-        </v-btn>
-      </template>
-      <v-list dense>
-        <v-list-item
-          v-for="userRoute in userRoutes"
-          :key="userRoute.route"
-        >
-          <v-list-item-content>
-            <v-btn
-              text
-              small
-              color="secondary"
-              :to="userRoute.route"
-            >
-              <v-icon left>{{ userRoute.icon }}</v-icon>
-              {{ userRoute.label }}
-            </v-btn>
-          </v-list-item-content>
-        </v-list-item>
-        
-        <v-list-item v-if="user">
-          <v-list-item-content>
-            <v-btn
-              text
-              small
-              color="accent"
-              @click="logout"
-            >
-              <v-icon left>mdi-exit-to-app</v-icon>
-              Logout
-            </v-btn>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <v-btn icon to="/wishlist" exact>
+      <v-icon>mdi-heart</v-icon>
+    </v-btn>
+
+    <v-btn v-if="user" icon @click="logout">
+      <v-icon>mdi-exit-to-app</v-icon>
+    </v-btn>
   </v-app-bar>
 </template>
 
@@ -82,28 +46,6 @@ export default {
   data: () => ({
     mobileBg,
     desktopBg,
-    userRoutes: [
-      {
-        route: '/wishlist',
-        icon: 'mdi-heart-plus',
-        label: 'Wishlist',
-      },
-      {
-        route: '/currenty-watching',
-        icon: 'mdi-eye-plus',
-        label: 'Currently watching',
-      },
-      {
-        route: '/already-watched',
-        icon: 'mdi-eye-check',
-        label: 'Already watched',
-      },
-      {
-        route: '/abandoned',
-        icon: 'mdi-heart-off',
-        label: 'Abandoned',
-      },
-    ]
   }),
   computed: {
     ...mapState(["user"]),
