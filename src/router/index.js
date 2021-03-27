@@ -19,7 +19,7 @@ const routes = [
     meta: {
       availableLists: [ 
         'wishlist',
-        'currenty-watching',
+        'currently-watching',
         'already-watched',
         'abandoned',
       ],
