@@ -5,15 +5,8 @@
     </v-expansion-panel-header>
 
     <v-expansion-panel-content class="pt-5">
-      <div v-if="kdrama.dateStart" class="d-flex mb-2">
-        <v-icon left small color="secondary">mdi-calendar-heart</v-icon>
-        <span>
-          {{ getDate(kdrama.dateStart) }}
-          <template v-if="kdrama.dateEnd">
-            - {{ getDate(kdrama.dateEnd) }}
-          </template>
-        </span>
-      </div>
+      <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" />
+
       <template v-for="item in kdramaData">
         <template v-if="kdrama[item.key]">
           <div :key="item.key" class="mb-1">
@@ -22,9 +15,12 @@
           </div>
         </template>
       </template>
-      <div v-if="kdrama.trivia">
+      <div v-if="kdrama.trivia" class="mb-1">
         <h3>Curiosidades</h3>
         <TriviaList :data="kdrama.trivia" />
+      </div>
+      <div class="text-right text-caption font-italic">
+        Añadido: {{ getDateTime(kdrama.dateAdd) }}
       </div>
     </v-expansion-panel-content>
   </div>
@@ -32,8 +28,10 @@
 
 <script>
 import KdramaCard from '@/components/KdramaCard';
+import KdramaDates from '@/components/KdramaDates';
 import TriviaList from '@/components/TriviaList';
 import mobileBg from '@/assets/img/header-bg-mobile.jpg';
+import { mapActions } from 'vuex';
 
 export default {
   name: 'KdramaPanel',
@@ -56,11 +54,18 @@ export default {
   components: {
     KdramaCard,
     TriviaList,
+    KdramaDates,
   },
   methods: {
-    getDate(date) {
+    ...mapActions(["setSnackbar"]),
+    formatDate(date) {
+      const [year, month, day] = date.split('-');
+      return `${day}/${month}/${year}`;
+    },
+    getDateTime(date) {
       const kdramaDate = new Date(date);
-      return `${kdramaDate.getDate()}/${kdramaDate.getMonth() < 9 ? '0' : ''}${kdramaDate.getMonth() + 1}/${kdramaDate.getFullYear()}`;
+      return `${this.formatDate(kdramaDate.toISOString().substr(0, 10))}
+        ${kdramaDate.toISOString().substr(11, 8)}`;
     },
     getFormattedText(text) {
       return text.replaceAll('[[', '<strong>').replaceAll(']]', '</strong>');

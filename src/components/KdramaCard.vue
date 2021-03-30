@@ -134,13 +134,13 @@ export default {
         const extraInfo = await this.getKramaInfo(kdrama.id, kdrama.title);
         let dateStart = null;
         let dateEnd = null;
-        const now = (new Date()).toJSON();
+        const now = new Date();
 
         if (action !== 'wishlist') {
-          dateStart = now;
+          dateStart = now.toISOString().substr(0, 10);
         }
         if (action === 'already-watched' || action === 'abandoned') {
-          dateEnd = now;
+          dateEnd = now.toISOString().substr(0, 10);
         }
 
         const toSave = {
@@ -149,7 +149,7 @@ export default {
           wikiaId: kdrama.id,
           user: this.user.uid,
           list: action,
-          dateAdd: now,
+          dateAdd: now.toJSON(),
           dateStart,
           dateEnd,
         };
