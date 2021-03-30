@@ -18,24 +18,21 @@
         <template v-if="kdrama[item.key]">
           <div :key="item.key" class="mb-1">
             <h3>{{ item.label }}</h3>
-            <template v-if="Array.isArray(kdrama[item.key])">
-              <div v-for="(text, key) in kdrama[item.key]" :key="key">
-                <v-icon left x-small color="secondary">mdi-checkbox-blank-circle</v-icon>
-                <span v-html="getFormattedText(text)"></span>
-              </div>
-            </template>
-            <template v-else>
-              <div v-html="getFormattedText(kdrama[item.key])"></div>
-            </template>
+            <div v-html="getFormattedText(kdrama[item.key])"></div>
           </div>
         </template>
       </template>
+      <div v-if="kdrama.trivia">
+        <h3>Curiosidades</h3>
+        <TriviaList :data="kdrama.trivia" />
+      </div>
     </v-expansion-panel-content>
   </div>
 </template>
 
 <script>
 import KdramaCard from '@/components/KdramaCard';
+import TriviaList from '@/components/TriviaList';
 import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 
 export default {
@@ -54,14 +51,11 @@ export default {
         label: 'Sinopsis',
         key: 'synopsis',
       },
-      {
-        label: 'Curiosidades',
-        key: 'trivia',
-      },
     ]
   }),
   components: {
     KdramaCard,
+    TriviaList,
   },
   methods: {
     getDate(date) {

@@ -159,7 +159,7 @@ export default {
         this.db.collection('kdramas').add(toSave)
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama ${toSave.title} successfully added to your ${action} list.`,
+              msg: `Kdrama "${toSave.title}" successfully added to your ${action} list.`,
               color: "success",
               timeout: 5000
             });
@@ -195,21 +195,43 @@ export default {
         }
         
         let synopsis = null;
-        let synopsisMatch = lastRevision.match(/Sinopsis\s==\n(.*?)\n==/s);
+        let synopsisMatch = lastRevision.match(/Sinopsis\s*?==\n(.*?)\n==/s);
         if (synopsisMatch && synopsisMatch.length === 2) {
-          synopsis = synopsisMatch[1];
+          synopsis = '<p>' + synopsisMatch[1]
+            .replace(/\n\s*\n/g, '\n')
+            .replace(/(?:\r\n|\r|\n)+$/, '')
+            .replace(/(?:\r\n|\r|\n)/g, '</p><p>') + '</p>';
         }
         
         let trivia = null;
-        let triviaMatch = lastRevision.match(/Curiosidades\s==\n(.*?)\n==/s);
+        let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
         if (triviaMatch && triviaMatch.length === 2) {
-          trivia = triviaMatch[1].split('*').map(t => t.trim()).filter(t => t);
+          trivia = this.getTrivia(triviaMatch[1]);
         }
 
         return { genre, episodes, synopsis, trivia };
       }
 
       return {};
+    },
+    getTrivia(text, rep = 1) {
+      const regExp = new RegExp(`(?:\\s|^)\\*{${rep}}(?:\\b|\\s)`);
+      return text
+        .split(regExp)
+        .map(t => t.trim())
+        .filter(t => t)
+        .map(t => {
+          const regExp2 = new RegExp(`(?:\\s|^)\\*{${rep + 1}}(?:\\b|\\s)`);
+          if (regExp2.exec(t)) {
+            const result = this.getTrivia(t, rep + 1);
+            return {
+              text: result.shift().text,
+              children: result,
+            }
+          } else {
+            return { text: t };
+          }
+        });
     },
   },
   created() {
