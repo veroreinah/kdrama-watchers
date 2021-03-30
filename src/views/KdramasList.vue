@@ -25,7 +25,7 @@
         <v-expansion-panel
           v-for="drama in kdramas" :key="drama.id"
         >
-          <KdramaPanel :kdrama="drama" />
+          <KdramaPanel :kdrama="drama" @updateList="getData()" />
         </v-expansion-panel>
       </v-expansion-panels>
 
