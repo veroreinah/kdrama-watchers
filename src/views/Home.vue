@@ -24,7 +24,7 @@
           class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <KdramaCard :kdrama="result" />
+          <KdramaCard :kdrama="result" :hideIds="addedKdramas" @updateList="getKdramas" />
         </div>
       </div>
 
@@ -47,6 +47,8 @@ import axios from 'axios';
 import { mapState } from "vuex";
 import KdramaCard from '@/components/KdramaCard';
 import Login from '@/components/Login';
+import firebase from "firebase/app";
+import "firebase/firestore";
 
 export default {
   name: 'Home',
@@ -54,6 +56,8 @@ export default {
     query: '',
     loading: false,
     data: null,
+    db: undefined,
+    addedKdramas: [],
   }),
   computed: {
     ...mapState(["user"]),
@@ -141,6 +145,26 @@ export default {
           });
       }
     },
+    getKdramas() {
+      this.db.collection('kdramas').get()
+        .then(querySnapshot => {
+          const kdramas = [];
+          querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
+          this.addedKdramas = kdramas.map(kdrama => kdrama.wikiaId);
+        })
+        .catch(error => {
+          console.error(error);
+          this.setSnackbar({
+            msg: "There was an error while getting the kdramas list.",
+            color: "error",
+            timeout: 10000
+          });
+        });
+    }
+  },
+  created() {
+    this.db = firebase.firestore();
+    this.getKdramas();
   },
 }
 </script>

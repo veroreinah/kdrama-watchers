@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <v-card-actions v-if="!hideActions && hasActions()">
+        <v-card-actions v-if="!hideActions && hasActions() && !toHide()">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -80,6 +80,7 @@ export default {
     kdrama: { type: Object, required: true },
     small: { type: Boolean, default: false },
     hideActions: { type: Boolean, default: false },
+    hideIds: { type: Array },
   },
   data: () => ({
     db: undefined,
@@ -124,6 +125,9 @@ export default {
     hasActions() {
       return this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
     },
+    toHide() {
+      return this.hideIds && this.hideIds.length && this.hideIds.includes(this.kdrama.id);
+    },
     async triggerAction(action, kdrama) {
       this.loading = true;
 
@@ -163,6 +167,8 @@ export default {
               color: "success",
               timeout: 5000
             });
+
+            this.$emit('updateList');
           })
           .catch(error => {
             console.error(error);
