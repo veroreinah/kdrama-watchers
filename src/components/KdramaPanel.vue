@@ -4,21 +4,67 @@
       <div class="d-flex align-sm-center justify-space-between">
         <KdramaCard :kdrama="kdrama" small hide-actions />
 
-        <div v-if="actions[kdrama.list]" class="pa-4 d-flex flex-column d-sm-block">
-          <v-btn
-            v-for="action in actions[kdrama.list]"
-            :key="action.action"
-            fab
-            depressed
-            x-small
-            color="secondary"
-            :loading="currentAction === action.action && loading"
-            :disabled="loading"
-            @click.stop="moveKdrama(action.action)"
-            class="ml-1 ml-sm-2 mb-1 mb-sm-0"
-          >
-            <v-icon>{{ action.icon }}</v-icon>
-          </v-btn>
+        <div class="pa-4 d-flex flex-column d-sm-block text-no-wrap">
+          <template v-if="actions[kdrama.list]">
+            <v-btn
+              v-for="action in actions[kdrama.list]"
+              :key="action.action"
+              fab
+              depressed
+              x-small
+              color="secondary"
+              :loading="currentAction === action.action && loading"
+              :disabled="loading"
+              @click.stop="moveKdrama(action.action)"
+              class="ml-1 ml-sm-2 mb-1 mb-sm-0"
+            >
+              <v-icon>{{ action.icon }}</v-icon>
+            </v-btn>
+          </template>
+          <v-dialog v-model="dialog" max-width="320">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                fab
+                depressed
+                x-small
+                color="secondary"
+                :loading="currentAction === 'delete' && loading"
+                :disabled="loading"
+                class="ml-1 ml-sm-2 mb-1 mb-sm-0"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title class="headline">
+                Eliminar
+              </v-card-title>
+              <v-card-text>
+                ¿Seguro que quieres eliminar este kdrama? Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="secondary"
+                  text
+                  @click="dialog = false"
+                >
+                  Cancelar
+                </v-btn>
+                <v-btn
+                  color="secondary"
+                  text
+                  @click="deleteKdrama"
+                  :loading="currentAction === 'delete' && loading"
+                  :disabled="loading"
+                >
+                  Aceptar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </div>
       </div>
     </v-expansion-panel-header>
@@ -64,6 +110,7 @@ export default {
     db: undefined,
     loading: false,
     currentAction: undefined,
+    dialog: false,
     kdramaData: [
       {
         label: 'Episodios',
@@ -150,6 +197,34 @@ export default {
           });
         })
         .finally(() => {
+          this.loading = false;
+          this.currentAction = undefined;
+        });
+    },
+    deleteKdrama() {
+      this.loading = true;
+      this.currentAction = 'delete';
+
+      this.db.collection('kdramas').doc(this.kdrama.id).delete()
+        .then(() => {
+          this.setSnackbar({
+            msg: `El kdrama "${this.kdrama.title}" se ha eliminado.`,
+            color: "success",
+            timeout: 5000
+          });
+          
+          this.$emit('updateList');
+        })
+        .catch(error => {
+          console.error(error);
+          this.setSnackbar({
+            msg: "Ha habido un error al eliminar el kdrama.",
+            color: "error",
+            timeout: 10000
+          });
+        })
+        .finally(() => {
+          this.dialog = false;
           this.loading = false;
           this.currentAction = undefined;
         });

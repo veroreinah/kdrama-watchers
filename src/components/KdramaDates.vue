@@ -51,6 +51,13 @@
           <v-btn
             color="secondary"
             text
+            @click="dialog = false"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn
+            color="secondary"
+            text
             :loading="loading"
             @click="updateDates"
           >
