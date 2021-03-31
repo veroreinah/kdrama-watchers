@@ -30,7 +30,7 @@
                 color="secondary"
                 :loading="currentAction === 'delete' && loading"
                 :disabled="loading"
-                class="ml-1 ml-sm-2 mb-1 mb-sm-0"
+                class="ml-1 ml-sm-2"
                 v-bind="attrs"
                 v-on="on"
               >
@@ -38,24 +38,24 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">
-                Eliminar
-              </v-card-title>
-              <v-card-text>
-                ¿Seguro que quieres eliminar este kdrama? Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
+              <v-toolbar color="secondary" dark>Eliminar</v-toolbar>
+              <v-card-text class="pa-5">
+                ¿Seguro que quieres eliminar este kdrama?
+                Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
-                  color="secondary"
-                  text
+                  tile
+                  depressed
                   @click="dialog = false"
                 >
                   Cancelar
                 </v-btn>
                 <v-btn
+                  tile
+                  depressed
                   color="secondary"
-                  text
                   @click="deleteKdrama"
                   :loading="currentAction === 'delete' && loading"
                   :disabled="loading"
@@ -156,13 +156,15 @@ export default {
   methods: {
     ...mapActions(["setSnackbar"]),
     formatDate(date) {
-      const [year, month, day] = date.split('-');
-      return `${day}/${month}/${year}`;
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
     },
     getDateTime(date) {
       const kdramaDate = new Date(date);
-      return `${this.formatDate(kdramaDate.toISOString().substr(0, 10))}
-        ${kdramaDate.toISOString().substr(11, 8)}`;
+      return `${this.formatDate(kdramaDate)}
+        ${kdramaDate.toLocaleTimeString()}`;
     },
     getFormattedText(text) {
       return text.replaceAll('[[', '<strong>').replaceAll(']]', '</strong>');
@@ -181,7 +183,7 @@ export default {
       this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
         .then(() => {
           this.setSnackbar({
-            msg: `El kdrama "${this.kdrama.title}" se ha actualizado correctamente.`,
+            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
             color: "success",
             timeout: 5000
           });
@@ -208,7 +210,7 @@ export default {
       this.db.collection('kdramas').doc(this.kdrama.id).delete()
         .then(() => {
           this.setSnackbar({
-            msg: `El kdrama "${this.kdrama.title}" se ha eliminado.`,
+            msg: `Kdrama "${this.kdrama.title}" eliminado.`,
             color: "success",
             timeout: 5000
           });

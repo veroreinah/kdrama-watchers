@@ -27,12 +27,16 @@
       </template>
 
       <v-card>
+        <v-toolbar color="secondary" dark>Fechas</v-toolbar>
+
         <v-card-text class="pa-5">
           <div class="d-flex justify-center">
             <v-date-picker
               v-model="dates"
               no-title
               :range="Array.isArray(dates)"
+              locale="es"
+              first-day-of-week="1"
             ></v-date-picker>
           </div>
 
@@ -49,15 +53,16 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="secondary"
-            text
+            depressed
+            tile
             @click="dialog = false"
           >
             Cancelar
           </v-btn>
           <v-btn
+            depressed
+            tile
             color="secondary"
-            text
             :loading="loading"
             @click="updateDates"
           >
@@ -122,7 +127,7 @@ export default {
             this.dateEnd = toSave.dateEnd;
 
             this.setSnackbar({
-              msg: `El kdrama "${toSave.title}" se ha actualizado correctamente.`,
+              msg: `Kdrama "${toSave.title}" actualizado correctamente.`,
               color: "success",
               timeout: 5000
             });

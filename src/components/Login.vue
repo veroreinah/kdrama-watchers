@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" transition="dialog-top-transition" max-width="600">
+  <v-dialog v-model="dialog" transition="dialog-top-transition" max-width="600" @click:outside="close">
     <form @submit.prevent="doLogin">
       <v-card>
         <v-toolbar color="secondary" dark>Login</v-toolbar>
@@ -21,7 +21,7 @@
 
           <v-text-field
             v-model="loginForm.password"
-            label="Password"
+            label="Contraseña"
             type="password"
             required
           ></v-text-field>
@@ -32,14 +32,14 @@
             depressed
             tile
             @click="close"
-          >Cancel</v-btn>
+          >Cancelar</v-btn>
           <v-btn
             depressed
             tile
             color="secondary"
             :loading="loading"
             type="submit"
-          >Login</v-btn>
+          >Acceder</v-btn>
         </v-card-actions>
       </v-card>
     </form>

@@ -18,7 +18,7 @@
 
       <template v-slot:action="{ attrs }">
         <v-btn text v-bind="attrs" @click="setSnackbar(null)">
-          Close
+          Cerrar
         </v-btn>
       </template>
     </v-snackbar>

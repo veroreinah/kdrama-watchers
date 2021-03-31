@@ -1,28 +1,12 @@
 header {
   & + .v-main {
-    padding-top: 128px !important;
+    transition: padding 200ms ease-in-out;
+    padding-top: 64px !important;
   }
 
-  .v-app-bar-title__content,
-  .v-app-bar-title__placeholder {
-    .text-subtitle-1 {
-      transition: all .5s;
-      opacity: 1;
-      height: 28px;
-    }
-  }
-
-  &.v-app-bar--is-scrolled {
+  &.v-toolbar--extended {
     & + .v-main {
-      padding-top: 56px !important;
-    }
-
-    .v-app-bar-title__content,
-    .v-app-bar-title__placeholder {
-      .text-subtitle-1 {
-        opacity: 0;
-        height: 0;
-      }
+      padding-top: 112px !important;
     }
   }
 }
