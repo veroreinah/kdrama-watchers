@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-5">
+  <div class="pt-2">
     <v-progress-linear
       v-if="loading"
       indeterminate

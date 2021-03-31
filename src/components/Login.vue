@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" transition="dialog-top-transition" max-width="600">
+  <v-dialog v-model="dialog" transition="dialog-top-transition" max-width="600" @click:outside="close">
     <form @submit.prevent="doLogin">
       <v-card>
         <v-toolbar color="secondary" dark>Login</v-toolbar>

@@ -30,7 +30,7 @@
                 color="secondary"
                 :loading="currentAction === 'delete' && loading"
                 :disabled="loading"
-                class="ml-1 ml-sm-2 mb-1 mb-sm-0"
+                class="ml-1 ml-sm-2"
                 v-bind="attrs"
                 v-on="on"
               >
@@ -38,24 +38,24 @@
               </v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline">
-                Eliminar
-              </v-card-title>
-              <v-card-text>
-                ¿Seguro que quieres eliminar este kdrama? Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
+              <v-toolbar color="secondary" dark>Eliminar</v-toolbar>
+              <v-card-text class="pa-5">
+                ¿Seguro que quieres eliminar este kdrama?
+                Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
-                  color="secondary"
-                  text
+                  tile
+                  depressed
                   @click="dialog = false"
                 >
                   Cancelar
                 </v-btn>
                 <v-btn
+                  tile
+                  depressed
                   color="secondary"
-                  text
                   @click="deleteKdrama"
                   :loading="currentAction === 'delete' && loading"
                   :disabled="loading"

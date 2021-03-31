@@ -29,8 +29,8 @@
       <v-icon>mdi-exit-to-app</v-icon>
     </v-btn>
 
-    <template v-slot:extension>
-      <v-tabs show-arrows>
+    <template v-slot:extension v-if="$route.path.includes('lists')">
+      <v-tabs show-arrows grow>
         <v-tab
           v-for="r in routes" 
           :key="r.route" 

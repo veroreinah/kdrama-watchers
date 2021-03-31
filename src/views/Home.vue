@@ -1,5 +1,5 @@
 <template>
-  <div class="home pt-5">
+  <div class="pt-2">
     <v-text-field
       v-model="query"
       label="Buscar un kdrama..."
