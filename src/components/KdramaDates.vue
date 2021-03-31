@@ -33,6 +33,8 @@
               v-model="dates"
               no-title
               :range="Array.isArray(dates)"
+              locale="es"
+              first-day-of-week="1"
             ></v-date-picker>
           </div>
 
@@ -122,7 +124,7 @@ export default {
             this.dateEnd = toSave.dateEnd;
 
             this.setSnackbar({
-              msg: `El kdrama "${toSave.title}" se ha actualizado correctamente.`,
+              msg: `Kdrama "${toSave.title}" actualizado correctamente.`,
               color: "success",
               timeout: 5000
             });

@@ -90,22 +90,22 @@ export default {
       {
         action: 'wishlist',
         icon: 'mdi-heart-plus',
-        label: 'Wishlist',
+        label: 'Lista de deseos',
       },
       {
         action: 'currently-watching',
         icon: 'mdi-eye-plus',
-        label: 'Currently watching',
+        label: 'Viendo',
       },
       {
         action: 'already-watched',
         icon: 'mdi-eye-check',
-        label: 'Already watched',
+        label: 'Vistos',
       },
       {
         action: 'abandoned',
         icon: 'mdi-heart-off',
-        label: 'Abandoned',
+        label: 'Abandonados',
       },
     ],
   }),
@@ -123,10 +123,16 @@ export default {
   methods: {
     ...mapActions(["setPendingAction", "setSnackbar"]),
     hasActions() {
-      return this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
+      return this.kdrama.categories && this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
     },
     toHide() {
       return this.hideIds && this.hideIds.length && this.hideIds.includes(this.kdrama.id);
+    },
+    getListName(action) {
+      const list = this.actions.find(a => a.action === action);
+      if (list) {
+        return list.label;
+      }
     },
     async triggerAction(action, kdrama) {
       this.loading = true;
@@ -163,7 +169,7 @@ export default {
         this.db.collection('kdramas').add(toSave)
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama "${toSave.title}" successfully added to your ${action} list.`,
+              msg: `Kdrama "${toSave.title}" añadido correctamente a la lista ${this.getListName(action)}.`,
               color: "success",
               timeout: 5000
             });
@@ -173,7 +179,7 @@ export default {
           .catch(error => {
             console.error(error);
             this.setSnackbar({
-              msg: "There was an error while adding the kdrama.",
+              msg: "Ha habido un error al añadir el kdrama.",
               color: "error",
               timeout: 10000
             });

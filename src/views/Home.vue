@@ -2,7 +2,7 @@
   <div class="home pt-5">
     <v-text-field
       v-model="query"
-      label="Search k-drama..."
+      label="Buscar un kdrama..."
       outlined
       clearable
       autofocus
@@ -31,9 +31,9 @@
       <div v-else-if="data && !data.length">
         <v-card color="primary" dark>
           <v-card-title class="headline">
-            <span>We couldn't find any results that match <strong>"{{ query }}"</strong>.</span>
+            <span>No hemos podido encontrar ningún resultado que coincida con <strong>"{{ query }}"</strong>.</span>
           </v-card-title>
-          <v-card-subtitle>Try another search!</v-card-subtitle>
+          <v-card-subtitle>Intenta otra búsqueda!</v-card-subtitle>
         </v-card>
       </div>
     </div>
@@ -155,7 +155,7 @@ export default {
         .catch(error => {
           console.error(error);
           this.setSnackbar({
-            msg: "There was an error while getting the kdramas list.",
+            msg: "Ha habido un error al recuperar el listado de kdramas.",
             color: "error",
             timeout: 10000
           });

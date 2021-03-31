@@ -181,7 +181,7 @@ export default {
       this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
         .then(() => {
           this.setSnackbar({
-            msg: `El kdrama "${this.kdrama.title}" se ha actualizado correctamente.`,
+            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
             color: "success",
             timeout: 5000
           });
@@ -208,7 +208,7 @@ export default {
       this.db.collection('kdramas').doc(this.kdrama.id).delete()
         .then(() => {
           this.setSnackbar({
-            msg: `El kdrama "${this.kdrama.title}" se ha eliminado.`,
+            msg: `Kdrama "${this.kdrama.title}" eliminado.`,
             color: "success",
             timeout: 5000
           });

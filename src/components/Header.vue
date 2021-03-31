@@ -16,8 +16,8 @@
     </template>
 
     <v-app-bar-title>
-      <div>K-drama watchers</div>
-      <div class="text-subtitle-1 font-weight-thin">We watch kdramas</div>
+      <div>Kdrama watchers</div>
+      <div class="text-subtitle-1 font-weight-thin">Vemos kdramas</div>
     </v-app-bar-title>
 
     <v-spacer></v-spacer>

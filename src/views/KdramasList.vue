@@ -32,7 +32,7 @@
       <div v-else-if="kdramas && !kdramas.length">
         <v-card color="primary" dark>
           <v-card-title class="headline">
-            <span>You haven't added any kdrama to your <strong>"{{ getListName() }}"</strong> list.</span>
+            <span>No has añadido ningún kdrama a la lista <strong>"{{ getListName() }}"</strong>.</span>
           </v-card-title>
         </v-card>
       </div>
@@ -58,22 +58,22 @@ export default {
       {
         route: '/wishlist',
         icon: 'mdi-heart-plus',
-        label: 'Wishlist',
+        label: 'Lista de deseos',
       },
       {
         route: '/currently-watching',
         icon: 'mdi-eye-plus',
-        label: 'Currently watching',
+        label: 'Viendo',
       },
       {
         route: '/already-watched',
         icon: 'mdi-eye-check',
-        label: 'Already watched',
+        label: 'Vistos',
       },
       {
         route: '/abandoned',
         icon: 'mdi-heart-off',
-        label: 'Abandoned',
+        label: 'Abandonados',
       },
     ],
     kdramas: [],
@@ -110,7 +110,7 @@ export default {
         .catch(error => {
           console.error(error);
           this.setSnackbar({
-            msg: "There was an error while getting the kdramas list.",
+            msg: "Ha habido un error al recuperar el listado de kdramas.",
             color: "error",
             timeout: 10000
           });

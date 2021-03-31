@@ -21,7 +21,7 @@
 
           <v-text-field
             v-model="loginForm.password"
-            label="Password"
+            label="Contraseña"
             type="password"
             required
           ></v-text-field>
@@ -32,14 +32,14 @@
             depressed
             tile
             @click="close"
-          >Cancel</v-btn>
+          >Cancelar</v-btn>
           <v-btn
             depressed
             tile
             color="secondary"
             :loading="loading"
             type="submit"
-          >Login</v-btn>
+          >Acceder</v-btn>
         </v-card-actions>
       </v-card>
     </form>
