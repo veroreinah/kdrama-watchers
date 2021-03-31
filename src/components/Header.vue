@@ -3,10 +3,8 @@
     fixed
     color="primary"
     dark
-    shrink-on-scroll
     :src="$vuetify.breakpoint.xs ? mobileBg : desktopBg"
-    height="128"
-    min-height="56"
+    height="64"
   >
     <template v-slot:img="{ props }">
       <v-img
@@ -15,10 +13,7 @@
       ></v-img>
     </template>
 
-    <v-app-bar-title>
-      <div>Kdrama watchers</div>
-      <div class="text-subtitle-1 font-weight-thin">Vemos kdramas</div>
-    </v-app-bar-title>
+    <v-toolbar-title>Kdrama watchers</v-toolbar-title>
 
     <v-spacer></v-spacer>
 
@@ -33,6 +28,19 @@
     <v-btn v-if="user" icon @click="logout">
       <v-icon>mdi-exit-to-app</v-icon>
     </v-btn>
+
+    <template v-slot:extension>
+      <v-tabs show-arrows>
+        <v-tab
+          v-for="r in routes" 
+          :key="r.route" 
+          :to="r.route"
+        >
+          <v-icon left>{{ r.icon }}</v-icon>
+          {{ r.label }}
+        </v-tab>
+      </v-tabs>
+    </template>
   </v-app-bar>
 </template>
 
@@ -46,6 +54,28 @@ export default {
   data: () => ({
     mobileBg,
     desktopBg,
+    routes: [
+      {
+        route: '/lists/wishlist',
+        icon: 'mdi-heart-plus',
+        label: 'Lista de deseos',
+      },
+      {
+        route: '/lists/currently-watching',
+        icon: 'mdi-eye-plus',
+        label: 'Viendo',
+      },
+      {
+        route: '/lists/already-watched',
+        icon: 'mdi-eye-check',
+        label: 'Vistos',
+      },
+      {
+        route: '/lists/abandoned',
+        icon: 'mdi-heart-off',
+        label: 'Abandonados',
+      },
+    ],
   }),
   computed: {
     ...mapState(["user"]),

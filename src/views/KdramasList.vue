@@ -1,41 +1,25 @@
 <template>
   <div class="pt-5">
-    <div class="mb-5">
-      <v-chip
-        v-for="r in routes" 
-        :key="r.route" 
-        :to="r.route"
-        :color="r.route.includes(list) ? 'accent' : 'primary'"
-        class="mr-2"
+    <v-progress-linear
+      v-if="loading"
+      indeterminate
+      color="primary"
+    ></v-progress-linear>
+
+    <v-expansion-panels tile v-else-if="kdramas && kdramas.length">
+      <v-expansion-panel
+        v-for="drama in kdramas" :key="drama.id"
       >
-        <v-avatar left>
-          <v-icon>{{ r.icon }}</v-icon>
-        </v-avatar>
-        {{ r.label }}
-      </v-chip>
-    </div>
-    <div>
-      <v-progress-linear
-        v-if="loading"
-        indeterminate
-        color="primary"
-      ></v-progress-linear>
+        <KdramaPanel :kdrama="drama" @updateList="getData()" />
+      </v-expansion-panel>
+    </v-expansion-panels>
 
-      <v-expansion-panels tile v-else-if="kdramas && kdramas.length">
-        <v-expansion-panel
-          v-for="drama in kdramas" :key="drama.id"
-        >
-          <KdramaPanel :kdrama="drama" @updateList="getData()" />
-        </v-expansion-panel>
-      </v-expansion-panels>
-
-      <div v-else-if="kdramas && !kdramas.length">
-        <v-card color="primary" dark>
-          <v-card-title class="headline">
-            <span>No has añadido ningún kdrama a la lista <strong>"{{ getListName() }}"</strong>.</span>
-          </v-card-title>
-        </v-card>
-      </div>
+    <div v-else-if="kdramas && !kdramas.length">
+      <v-card color="primary" dark>
+        <v-card-title class="headline">
+          <span>No has añadido ningún kdrama a la lista <strong>"{{ lists[list] }}"</strong>.</span>
+        </v-card-title>
+      </v-card>
     </div>
   </div>
 </template>
@@ -54,28 +38,12 @@ export default {
   data: () => ({
     loading: false,
     kdramasRef: undefined,
-    routes: [
-      {
-        route: '/lists/wishlist',
-        icon: 'mdi-heart-plus',
-        label: 'Lista de deseos',
-      },
-      {
-        route: '/lists/currently-watching',
-        icon: 'mdi-eye-plus',
-        label: 'Viendo',
-      },
-      {
-        route: '/lists/already-watched',
-        icon: 'mdi-eye-check',
-        label: 'Vistos',
-      },
-      {
-        route: '/lists/abandoned',
-        icon: 'mdi-heart-off',
-        label: 'Abandonados',
-      },
-    ],
+    lists: {
+      'wishlist': 'Lista de deseos',
+      'currently-watching': 'Viendo',
+      'already-watched': 'Vistos',
+      'abandoned': 'Abandonados',
+    },
     kdramas: [],
   }),
   watch: {
@@ -93,12 +61,6 @@ export default {
   },
   methods: {
     ...mapActions(["setSnackbar"]),
-    getListName() {
-      const list = this.routes.find(r => r.route.includes(this.list));
-      if (list) {
-        return list.label;
-      }
-    },
     getData() {
       this.loading = true;
       
