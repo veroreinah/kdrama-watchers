@@ -134,6 +134,12 @@ export default {
         return list.label;
       }
     },
+    formatDate(date) {
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      return `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+    },
     async triggerAction(action, kdrama) {
       this.loading = true;
 
@@ -147,10 +153,10 @@ export default {
         const now = new Date();
 
         if (action !== 'wishlist') {
-          dateStart = now.toISOString().substr(0, 10);
+          dateStart = this.formatDate(now);
         }
         if (action === 'already-watched' || action === 'abandoned') {
-          dateEnd = now.toISOString().substr(0, 10);
+          dateEnd = this.formatDate(now);
         }
 
         const toSave = {

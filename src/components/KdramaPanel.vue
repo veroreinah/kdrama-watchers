@@ -156,13 +156,15 @@ export default {
   methods: {
     ...mapActions(["setSnackbar"]),
     formatDate(date) {
-      const [year, month, day] = date.split('-');
-      return `${day}/${month}/${year}`;
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
     },
     getDateTime(date) {
       const kdramaDate = new Date(date);
-      return `${this.formatDate(kdramaDate.toISOString().substr(0, 10))}
-        ${kdramaDate.toISOString().substr(11, 8)}`;
+      return `${this.formatDate(kdramaDate)}
+        ${kdramaDate.toLocaleTimeString()}`;
     },
     getFormattedText(text) {
       return text.replaceAll('[[', '<strong>').replaceAll(']]', '</strong>');
