@@ -12,19 +12,29 @@ const routes = [
     component: Home,
   },
   {
-    path: '/:list',
-    name: 'Kdramas list',
-    component: () => import(/* webpackChunkName: "list" */ '../views/KdramasList.vue'),
-    props: true,
-    meta: {
-      availableLists: [ 
-        'wishlist',
-        'currently-watching',
-        'already-watched',
-        'abandoned',
-      ],
-      requiresAuth: true,
+    path: '/lists',
+    name: 'Lists',
+    component: {
+      render: c => c('router-view'),
     },
+    redirect: '/lists/wishlist',
+    children: [
+      {
+        path: ':list',
+        name: 'Kdramas list',
+        component: () => import(/* webpackChunkName: "list" */ '../views/KdramasList.vue'),
+        props: true,
+        meta: {
+          availableLists: [ 
+            'wishlist',
+            'currently-watching',
+            'already-watched',
+            'abandoned',
+          ],
+          requiresAuth: true,
+        },
+      },
+    ],
   },
 ];
 

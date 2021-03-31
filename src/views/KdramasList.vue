@@ -56,22 +56,22 @@ export default {
     kdramasRef: undefined,
     routes: [
       {
-        route: '/wishlist',
+        route: '/lists/wishlist',
         icon: 'mdi-heart-plus',
         label: 'Lista de deseos',
       },
       {
-        route: '/currently-watching',
+        route: '/lists/currently-watching',
         icon: 'mdi-eye-plus',
         label: 'Viendo',
       },
       {
-        route: '/already-watched',
+        route: '/lists/already-watched',
         icon: 'mdi-eye-check',
         label: 'Vistos',
       },
       {
-        route: '/abandoned',
+        route: '/lists/abandoned',
         icon: 'mdi-heart-off',
         label: 'Abandonados',
       },
