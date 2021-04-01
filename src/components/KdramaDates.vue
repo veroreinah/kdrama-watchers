@@ -2,9 +2,9 @@
   <div class="d-flex align-center mb-2">
     <v-icon left small color="secondary">mdi-calendar-heart</v-icon>
     <span>
-      {{ formatDate(dateStart) }}
-      <template v-if="dateEnd">
-        - {{ formatDate(dateEnd) }}
+      {{ formatDate(kdrama.dateStart) }}
+      <template v-if="kdrama.dateEnd">
+        - {{ formatDate(kdrama.dateEnd) }}
       </template>
     </span>
 
@@ -89,8 +89,6 @@ export default {
     loading: false,
     error: undefined,
     dialog: false,
-    dateStart: undefined,
-    dateEnd: undefined,
     dates: [],
   }),
   methods: {
@@ -123,14 +121,13 @@ export default {
 
         this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
           .then(() => {
-            this.dateStart = toSave.dateStart;
-            this.dateEnd = toSave.dateEnd;
-
             this.setSnackbar({
               msg: `Kdrama "${toSave.title}" actualizado correctamente.`,
               color: "success",
               timeout: 5000
             });
+
+            this.$emit('updateList');
           })
           .catch(error => {
             console.error(error);
@@ -154,11 +151,7 @@ export default {
     this.db = firebase.firestore();
 
     if (this.kdrama.dateStart) {
-      this.dateStart = this.kdrama.dateStart;
-
       if (this.kdrama.dateEnd) {
-        this.dateEnd = this.kdrama.dateEnd;
-
         this.dates.push(this.kdrama.dateStart);
         this.dates.push(this.kdrama.dateEnd);
       } else {
