@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import KdramaPanel from '@/components/KdramaPanel';
 import firebase from "firebase/app";
 import "firebase/firestore";
@@ -44,8 +44,17 @@ export default {
       'already-watched': 'Vistos',
       'abandoned': 'Abandonados',
     },
+    sortField: {
+      'wishlist': 'dateAdd',
+      'currently-watching': 'dateStart',
+      'already-watched': 'dateEnd',
+      'abandoned': 'dateEnd',
+    },
     kdramas: [],
   }),
+  computed: {
+    ...mapState(["user"]),
+  },
   watch: {
     list() {
       this.getData();
@@ -64,7 +73,11 @@ export default {
     getData() {
       this.loading = true;
       
-      this.kdramasRef.where("list", "==", this.list).get()
+      this.kdramasRef
+        .where("user", "==", this.user.uid)
+        .where("list", "==", this.list)
+        .orderBy(this.sortField[this.list], "desc")
+        .get()
         .then(querySnapshot => {
           this.kdramas = [];
           querySnapshot.forEach(doc => this.kdramas.push({ id: doc.id, ...doc.data() }));

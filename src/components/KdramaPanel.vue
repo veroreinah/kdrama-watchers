@@ -70,7 +70,7 @@
     </v-expansion-panel-header>
 
     <v-expansion-panel-content class="pt-5">
-      <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" />
+      <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" @updateList="$emit('updateList')" />
 
       <template v-for="item in kdramaData">
         <template v-if="kdrama[item.key]">
