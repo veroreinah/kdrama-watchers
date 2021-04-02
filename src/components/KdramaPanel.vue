@@ -28,7 +28,7 @@
           </template>
         </KdramaCard>
 
-        <div class="pa-4 d-flex flex-column d-sm-block text-no-wrap">
+        <div class="px-2 px-sm-4 py-4 d-flex flex-column d-sm-block text-no-wrap">
           <template v-if="kdramaActions && kdramaActions.length">
             <v-btn
               v-for="action in kdramaActions"
