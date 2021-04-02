@@ -36,12 +36,12 @@
     <template v-slot:extension v-if="$route.path.includes('lists')">
       <v-tabs show-arrows grow>
         <v-tab
-          v-for="r in routes" 
-          :key="r.route" 
-          :to="r.route"
+          v-for="list in availableLists" 
+          :key="list.route" 
+          :to="list.route"
         >
-          <v-icon left>{{ r.icon }}</v-icon>
-          {{ r.label }}
+          <v-icon left>{{ list.icon }}</v-icon>
+          {{ list.label }}
         </v-tab>
       </v-tabs>
     </template>
@@ -50,40 +50,16 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import mobileBg from '@/assets/img/header-bg-mobile.jpg';
-import desktopBg from '@/assets/img/header-bg-desktop.jpg';
+import { tools } from "@/mixins/tools";
 
 export default {
   name: "Header",
-  data: () => ({
-    mobileBg,
-    desktopBg,
-    routes: [
-      {
-        route: '/lists/wishlist',
-        icon: 'mdi-heart-plus',
-        label: 'Lista de deseos',
-      },
-      {
-        route: '/lists/currently-watching',
-        icon: 'mdi-eye-plus',
-        label: 'Viendo',
-      },
-      {
-        route: '/lists/already-watched',
-        icon: 'mdi-eye-check',
-        label: 'Vistos',
-      },
-      {
-        route: '/lists/abandoned',
-        icon: 'mdi-heart-off',
-        label: 'Abandonados',
-      },
-    ],
-  }),
   computed: {
     ...mapState(["user"]),
   },
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["logout"]),
   },

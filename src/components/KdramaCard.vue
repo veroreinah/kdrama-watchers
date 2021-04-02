@@ -44,18 +44,18 @@
             </template>
             <v-list dense>
               <v-list-item
-                v-for="action in actions"
-                :key="action.action"
+                v-for="list in availableLists"
+                :key="list.action"
               >
                 <v-list-item-content>
                   <v-btn
                     text
                     small
                     color="secondary"
-                    @click="triggerAction(action.action, kdrama)"
+                    @click="triggerAction(list.action, kdrama)"
                   >
-                    <v-icon left>{{ action.icon }}</v-icon>
-                    {{ action.label }}
+                    <v-icon left>{{ list.icon }}</v-icon>
+                    {{ list.label }}
                   </v-btn>
                 </v-list-item-content>
               </v-list-item>
@@ -69,10 +69,10 @@
 
 <script>
 import axios from 'axios';
-import { mapActions, mapState } from "vuex";
-import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { mapActions, mapState } from "vuex";
+import { tools } from "@/mixins/tools";
 
 export default {
   name: 'KdramaCard',
@@ -85,29 +85,6 @@ export default {
   data: () => ({
     db: undefined,
     loading: false,
-    mobileBg,
-    actions: [
-      {
-        action: 'wishlist',
-        icon: 'mdi-heart-plus',
-        label: 'Lista de deseos',
-      },
-      {
-        action: 'currently-watching',
-        icon: 'mdi-eye-plus',
-        label: 'Viendo',
-      },
-      {
-        action: 'already-watched',
-        icon: 'mdi-eye-check',
-        label: 'Vistos',
-      },
-      {
-        action: 'abandoned',
-        icon: 'mdi-heart-off',
-        label: 'Abandonados',
-      },
-    ],
   }),
   computed: {
     ...mapState(["user", "pendingAction"]),
@@ -120,6 +97,9 @@ export default {
       }
     },
   },
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["setPendingAction", "setSnackbar"]),
     hasActions() {
@@ -127,18 +107,6 @@ export default {
     },
     toHide() {
       return this.hideIds && this.hideIds.length && this.hideIds.includes(this.kdrama.id);
-    },
-    getListName(action) {
-      const list = this.actions.find(a => a.action === action);
-      if (list) {
-        return list.label;
-      }
-    },
-    formatDate(date) {
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
     },
     async triggerAction(action, kdrama) {
       this.loading = true;
@@ -153,10 +121,10 @@ export default {
         const now = new Date();
 
         if (action !== 'wishlist') {
-          dateStart = this.formatDate(now);
+          dateStart = this.parseDate(now);
         }
         if (action === 'already-watched' || action === 'abandoned') {
-          dateEnd = this.formatDate(now);
+          dateEnd = this.parseDate(now);
         }
 
         const toSave = {
@@ -175,7 +143,7 @@ export default {
         this.db.collection('kdramas').add(toSave)
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama "${toSave.title}" añadido correctamente a la lista ${this.getListName(action)}.`,
+              msg: `Kdrama "${toSave.title}" añadido correctamente a la lista ${this.getListProp(action, 'label')}.`,
               color: "success",
               timeout: 5000
             });

@@ -11,16 +11,16 @@
 </template>
 
 <script>
+import { tools } from "@/mixins/tools";
+
 export default {
   name: 'TriviaList',
   props: {
     data: { type: Array, required: true },
     margin: { type: Number, default: 0 },
   },
-  methods: {
-    getFormattedText(text) {
-      return text.replaceAll('[[', '<strong>').replaceAll(']]', '</strong>');
-    },
-  },
+  mixins: [
+    tools,
+  ],
 }
 </script>

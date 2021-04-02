@@ -101,9 +101,10 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { mapActions, mapState } from 'vuex';
+import { tools } from "@/mixins/tools";
 
 export default {
   name: 'KdramasCalendar',
@@ -115,23 +116,6 @@ export default {
     value: '',
     calendarTitle: '',
     weekdays: [1, 2, 3, 4, 5, 6, 0],
-    kdramasList: {
-      'currently-watching': {
-        color: 'info',
-        emoji: '🤓',
-        value: 1,
-      },
-      'already-watched': {
-        color: 'secondary',
-        emoji: '🥰',
-        value: 2,
-      },
-      'abandoned': {
-        color: 'error',
-        emoji: '🤮',
-        value: 3,
-      },
-    },
     selectedDate: undefined,
   }),
   computed: {
@@ -143,7 +127,7 @@ export default {
           return kdrama.start <= date && kdrama.end >= date;
         });
         result.sort((kdramaA, kdramaB) => kdramaB.start - kdramaA.start);
-        result.sort((kdramaA, kdramaB) => this.kdramasList[kdramaA.data.list].value - this.kdramasList[kdramaB.data.list].value);
+        result.sort((kdramaA, kdramaB) => this.getListProp(kdramaA.data.list, 'value') - this.getListProp(kdramaB.data.list, 'value'));
 
         return result;
       } else {
@@ -151,11 +135,9 @@ export default {
       }
     },
   },
-  created() {
-    const db = firebase.firestore();
-    this.kdramasRef = db.collection('kdramas');
-    this.getData();
-  },
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["setSnackbar"]),
     prev () {
@@ -167,10 +149,6 @@ export default {
     clickMore(e) {
       this.selectedDate = e.date;
       this.dialog = true;
-    },
-    formatDate(date) {
-      const [year, month, day] = date.split('-');
-      return `${day}/${month}/${year}`;
     },
     getData() {
       this.loading = true;
@@ -184,10 +162,10 @@ export default {
           querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
 
           this.kdramas = kdramas.map(kdrama => ({
-            name: `${this.kdramasList[kdrama.list].emoji} ${kdrama.title}`,
+            name: `${this.getListProp(kdrama.list, 'emoji')} ${kdrama.title}`,
             start: new Date(kdrama.dateStart),
             end: kdrama.dateEnd ? new Date(kdrama.dateEnd) : new Date(),
-            color: this.kdramasList[kdrama.list].color,
+            color: this.getListProp(kdrama.list, 'color'),
             timed: false,
             data: {...kdrama},
           }));
@@ -202,6 +180,11 @@ export default {
         })
         .finally(() => this.loading = false);
     },
+  },
+  created() {
+    const db = firebase.firestore();
+    this.kdramasRef = db.collection('kdramas');
+    this.getData();
   },
   updated() {
     if (this.$refs.calendar) {

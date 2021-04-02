@@ -17,7 +17,7 @@
     <div v-else-if="kdramas && !kdramas.length">
       <v-card color="primary" dark>
         <v-card-title class="headline">
-          <span>No has añadido ningún kdrama a la lista <strong>"{{ lists[list] }}"</strong>.</span>
+          <span>No has añadido ningún kdrama a la lista <strong>"{{ getListProp(list, 'label') }}"</strong>.</span>
         </v-card-title>
       </v-card>
     </div>
@@ -25,10 +25,11 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
-import KdramaPanel from '@/components/KdramaPanel';
 import firebase from "firebase/app";
 import "firebase/firestore";
+import KdramaPanel from '@/components/KdramaPanel';
+import { mapActions, mapState } from 'vuex';
+import { tools } from "@/mixins/tools";
 
 export default {
   name: 'KdramasList',
@@ -38,18 +39,6 @@ export default {
   data: () => ({
     loading: false,
     kdramasRef: undefined,
-    lists: {
-      'wishlist': 'Lista de deseos',
-      'currently-watching': 'Viendo',
-      'already-watched': 'Vistos',
-      'abandoned': 'Abandonados',
-    },
-    sortField: {
-      'wishlist': 'dateAdd',
-      'currently-watching': 'dateStart',
-      'already-watched': 'dateEnd',
-      'abandoned': 'dateEnd',
-    },
     kdramas: [],
   }),
   computed: {
@@ -63,11 +52,9 @@ export default {
   components: {
     KdramaPanel,
   },
-  created() {
-    const db = firebase.firestore();
-    this.kdramasRef = db.collection('kdramas');
-    this.getData();
-  },
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["setSnackbar"]),
     getData() {
@@ -76,7 +63,7 @@ export default {
       this.kdramasRef
         .where("user", "==", this.user.uid)
         .where("list", "==", this.list)
-        .orderBy(this.sortField[this.list], "desc")
+        .orderBy(this.getListProp(this.list, 'sortField'), "desc")
         .get()
         .then(querySnapshot => {
           this.kdramas = [];
@@ -92,6 +79,11 @@ export default {
         })
         .finally(() => this.loading = false);
     },
+  },
+  created() {
+    const db = firebase.firestore();
+    this.kdramasRef = db.collection('kdramas');
+    this.getData();
   },
 }
 </script>
