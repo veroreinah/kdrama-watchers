@@ -37,6 +37,7 @@
               :range="Array.isArray(dates)"
               locale="es"
               first-day-of-week="1"
+              :max="parseDate(new Date())"
             ></v-date-picker>
           </div>
 
@@ -78,6 +79,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import { mapActions } from 'vuex';
+import { tools } from "@/mixins/tools";
 
 export default {
   name: 'KdramaDates',
@@ -91,12 +93,11 @@ export default {
     dialog: false,
     dates: [],
   }),
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["setSnackbar"]),
-    formatDate(date) {
-      const [year, month, day] = date.split('-');
-      return `${day}/${month}/${year}`;
-    },
     validateDates() {
       if (Array.isArray(this.dates))
         return this.dates.length === 2;

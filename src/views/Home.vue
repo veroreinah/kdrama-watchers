@@ -44,11 +44,11 @@
 
 <script>
 import axios from 'axios';
-import { mapState } from "vuex";
-import KdramaCard from '@/components/KdramaCard';
-import Login from '@/components/Login';
 import firebase from "firebase/app";
 import "firebase/firestore";
+import KdramaCard from '@/components/KdramaCard';
+import Login from '@/components/Login';
+import { mapState } from "vuex";
 
 export default {
   name: 'Home',

@@ -5,9 +5,9 @@
         <KdramaCard :kdrama="kdrama" small hide-actions />
 
         <div class="pa-4 d-flex flex-column d-sm-block text-no-wrap">
-          <template v-if="actions[kdrama.list]">
+          <template v-if="kdramaActions && kdramaActions.length">
             <v-btn
-              v-for="action in actions[kdrama.list]"
+              v-for="action in kdramaActions"
               :key="action.action"
               fab
               depressed
@@ -97,8 +97,8 @@ import "firebase/firestore";
 import KdramaCard from '@/components/KdramaCard';
 import KdramaDates from '@/components/KdramaDates';
 import TriviaList from '@/components/TriviaList';
-import mobileBg from '@/assets/img/header-bg-mobile.jpg';
 import { mapActions } from 'vuex';
+import { tools } from "@/mixins/tools";
 
 export default {
   name: 'KdramaPanel',
@@ -106,7 +106,6 @@ export default {
     kdrama: { type: Object, required: true },
   },
   data: () => ({
-    mobileBg,
     db: undefined,
     loading: false,
     currentAction: undefined,
@@ -121,54 +120,24 @@ export default {
         key: 'synopsis',
       },
     ],
-    actions: {
-      wishlist: [
-        {
-          action: 'currently-watching',
-          icon: 'mdi-eye-plus',
-        },
-        {
-          action: 'already-watched',
-          icon: 'mdi-eye-check',
-        },
-        {
-          action: 'abandoned',
-          icon: 'mdi-heart-off',
-        },
-      ],
-      'currently-watching': [
-        {
-          action: 'already-watched',
-          icon: 'mdi-eye-check',
-        },
-        {
-          action: 'abandoned',
-          icon: 'mdi-heart-off',
-        },
-      ],
-    },
   }),
+  computed: {
+    kdramaActions() {
+      return this.availableLists.filter(list => {
+        return list.actionInLists && list.actionInLists.includes(this.kdrama.list);
+      });
+    },
+  },
   components: {
     KdramaCard,
     TriviaList,
     KdramaDates,
   },
+  mixins: [
+    tools,
+  ],
   methods: {
     ...mapActions(["setSnackbar"]),
-    formatDate(date) {
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
-    },
-    getDateTime(date) {
-      const kdramaDate = new Date(date);
-      return `${this.formatDate(kdramaDate)}
-        ${kdramaDate.toLocaleTimeString()}`;
-    },
-    getFormattedText(text) {
-      return text.replaceAll('[[', '<strong>').replaceAll(']]', '</strong>');
-    },
     moveKdrama(list) {
       this.loading = true;
       this.currentAction = list;
