@@ -1,0 +1,13 @@
+header {
+  & + .v-main {
+    transition: padding 200ms ease-in-out;
+    padding-top: 64px !important;
+  }
+
+  &.v-toolbar--extended {
+    & + .v-main {
+      padding-top: 112px !important;
+    }
+  }
+}
+

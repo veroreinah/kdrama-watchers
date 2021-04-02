@@ -1,32 +1,48 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <Header />
+
+    <v-main>
+      <v-container>
+        <router-view></router-view>
+      </v-container>
+    </v-main>
+
+    <v-snackbar
+      top
+      :value="snackbar"
+      :timeout="snackbar && snackbar.timeout"
+      :color="snackbar && snackbar.color"
+    >
+      {{ snackbar && snackbar.msg }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" @click="setSnackbar(null)">
+          Cerrar
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </v-app>
 </template>
 
+<script>
+import Header from '@/components/Header';
+import { mapState, mapActions } from "vuex";
+
+export default {
+  name: 'App',
+  components: {
+    Header,
+  },
+  computed: {
+    ...mapState(["snackbar"])
+  },
+  methods: {
+    ...mapActions(["setSnackbar"]),
+  },
+};
+</script>
+
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+@import "./assets/styles.scss";
 </style>
