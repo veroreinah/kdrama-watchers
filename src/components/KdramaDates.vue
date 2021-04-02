@@ -3,7 +3,7 @@
     <v-icon left small color="secondary">mdi-calendar-heart</v-icon>
     <span>
       {{ formatDate(kdrama.dateStart) }}
-      <template v-if="kdrama.dateEnd">
+      <template v-if="kdrama.dateEnd && kdrama.dateEnd !== kdrama.dateStart">
         - {{ formatDate(kdrama.dateEnd) }}
       </template>
     </span>

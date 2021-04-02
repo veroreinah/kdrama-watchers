@@ -12,7 +12,10 @@
 
       <div class="flex-grow-1 d-flex flex-column justify-space-between">
         <div>
-          <v-card-title>{{ kdrama.title }}</v-card-title>
+          <v-card-title>
+            {{ kdrama.title }}
+            <slot name="afterTitle"></slot>
+          </v-card-title>
           <div v-if="kdrama.genre || kdrama.categories" class="pl-4 pr-3">
             <v-chip
               v-for="category in (kdrama.genre || kdrama.categories)"
@@ -133,6 +136,7 @@ export default {
           wikiaId: kdrama.id,
           user: this.user.uid,
           list: action,
+          rating: null,
           dateAdd: now.toJSON(),
           dateStart,
           dateEnd,
