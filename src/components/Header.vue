@@ -25,6 +25,10 @@
       <v-icon>mdi-heart</v-icon>
     </v-btn>
 
+    <v-btn icon to="/calendar" exact>
+      <v-icon>mdi-calendar-heart</v-icon>
+    </v-btn>
+
     <v-btn v-if="user" icon @click="logout">
       <v-icon>mdi-exit-to-app</v-icon>
     </v-btn>

@@ -36,6 +36,14 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/calendar',
+    name: 'Kdramas calendar',
+    component: () => import(/* webpackChunkName: "calendar" */ '../views/KdramasCalendar.vue'),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
 
 const router = new VueRouter({
