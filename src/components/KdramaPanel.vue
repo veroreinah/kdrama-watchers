@@ -2,7 +2,31 @@
   <div>
     <v-expansion-panel-header hide-actions class="pa-0">
       <div class="d-flex align-sm-center justify-space-between">
-        <KdramaCard :kdrama="kdrama" small hide-actions />
+        <KdramaCard :kdrama="kdrama" small hide-actions>
+          <template v-if="kdrama.list !== 'wishlist'" v-slot:afterTitle>
+            <div class="text-no-wrap ml-sm-2">
+              <v-icon 
+                v-for="(star, key) in kdramaRating" 
+                :key="key"
+                :color="star.color"
+                @click.stop="changeRating(key + 1)"
+              >{{ star.icon }}</v-icon>
+              <v-btn
+                v-if="rating !== kdrama.rating"
+                fab
+                depressed
+                x-small
+                color="secondary"
+                :loading="currentAction === 'rating' && loading"
+                :disabled="loading"
+                @click.stop="rateKdrama"
+                class="ml-1 ml-sm-2"
+              >
+                <v-icon>mdi-content-save</v-icon>
+              </v-btn>
+            </div>
+          </template>
+        </KdramaCard>
 
         <div class="pa-4 d-flex flex-column d-sm-block text-no-wrap">
           <template v-if="kdramaActions && kdramaActions.length">
@@ -120,6 +144,8 @@ export default {
         key: 'synopsis',
       },
     ],
+    rating: 0,
+    kdramaRating: [],
   }),
   computed: {
     kdramaActions() {
@@ -138,6 +164,36 @@ export default {
   ],
   methods: {
     ...mapActions(["setSnackbar"]),
+    changeRating(rating) {
+      if (this.rating === rating) {
+        this.rating = rating - 0.5;
+      } else if (rating === 1 && this.rating === 0.5) {
+        this.rating = 0;
+      } else {
+        this.rating = rating;
+      }
+      this.setkdramaRating(this.rating);
+    },
+    setkdramaRating(rating) {
+      const result = [];
+      const kdramaRating = rating || (this.kdrama.rating ? this.kdrama.rating / 2 : 0);
+      for (let index = 0; index < 5; index++) {
+        let icon = 'mdi-star';
+        let color = 'warning';
+        if (kdramaRating < (index + 1)) {
+          if (kdramaRating > index) {
+            icon = 'mdi-star-half-full';
+          } else {
+            icon = 'mdi-star-outline';
+            color = '#bdbdbd';
+          }
+        }
+
+        result.push({ icon, color, });
+      }
+
+      this.kdramaRating = result;
+    },
     moveKdrama(list) {
       this.loading = true;
       this.currentAction = list;
@@ -200,9 +256,39 @@ export default {
           this.currentAction = undefined;
         });
     },
+    rateKdrama() {
+      this.loading = true;
+      this.currentAction = 'rating';
+
+      this.db.collection('kdramas').doc(this.kdrama.id).set({ ...this.kdrama, rating: this.rating * 2 })
+        .then(() => {
+          this.setSnackbar({
+            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
+            color: "success",
+            timeout: 5000
+          });
+
+          this.kdrama.rating = this.rating;
+        })
+        .catch(error => {
+          console.error(error);
+          this.setSnackbar({
+            msg: "Ha habido un error al valorar el kdrama.",
+            color: "error",
+            timeout: 10000
+          });
+        })
+        .finally(() => {
+          this.dialog = false;
+          this.loading = false;
+          this.currentAction = undefined;
+        });
+    },
   },
   created() {
     this.db = firebase.firestore();
+    this.rating = this.kdrama.rating;
+    this.setkdramaRating();
   },
 }
 </script>
