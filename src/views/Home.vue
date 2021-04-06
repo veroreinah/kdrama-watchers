@@ -24,7 +24,7 @@
           class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <KdramaCard :kdrama="result" :hideIds="addedKdramas" @updateList="getKdramas" />
+          <KdramaCard :kdrama="result" :savedKdramas="addedKdramas" @updateList="getKdramas" />
         </div>
       </div>
 
@@ -65,6 +65,11 @@ export default {
   watch: {
     query() {
       this.data = null;
+    },
+    user(value) {
+      if (value && value.uid) {
+        this.getKdramas();
+      }
     },
   },
   components: {
@@ -146,11 +151,17 @@ export default {
       }
     },
     getKdramas() {
-      this.db.collection('kdramas').get()
+      if (!this.db) {
+        this.db = firebase.firestore();
+      }
+
+      this.db.collection('kdramas')
+        .where("user", "==", this.user.uid)
+        .get()
         .then(querySnapshot => {
           const kdramas = [];
           querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
-          this.addedKdramas = kdramas.map(kdrama => kdrama.wikiaId);
+          this.addedKdramas = kdramas;
         })
         .catch(error => {
           console.error(error);
@@ -164,7 +175,9 @@ export default {
   },
   created() {
     this.db = firebase.firestore();
-    this.getKdramas();
+    if (this.user && this.user.uid) {
+      this.getKdramas();
+    }
   },
 }
 </script>

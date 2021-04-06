@@ -110,6 +110,9 @@
       </div>
       <div class="text-right text-caption font-italic">
         Añadido: {{ getDateTime(kdrama.dateAdd) }}
+        <template v-if="kdrama.dateUpdated">
+          - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
+        </template>
       </div>
     </v-expansion-panel-content>
   </div>
