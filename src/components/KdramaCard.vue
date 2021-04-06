@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <v-card-actions v-if="!hideActions && hasActions() && !toHide()">
+        <v-card-actions v-if="!hideActions && hasActions()">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -45,7 +45,22 @@
                 <v-icon>mdi-plus-circle</v-icon>
               </v-btn>
             </template>
-            <v-list dense>
+            <v-list v-if="toUpdate()" dense>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-btn
+                    text
+                    small
+                    color="secondary"
+                    @click="updateKdrama()"
+                  >
+                    <v-icon left>mdi-content-save</v-icon>
+                    Actualizar
+                  </v-btn>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+            <v-list v-else dense>
               <v-list-item
                 v-for="list in availableLists"
                 :key="list.action"
@@ -83,7 +98,7 @@ export default {
     kdrama: { type: Object, required: true },
     small: { type: Boolean, default: false },
     hideActions: { type: Boolean, default: false },
-    hideIds: { type: Array },
+    savedKdramas: { type: Array },
   },
   data: () => ({
     db: undefined,
@@ -91,6 +106,9 @@ export default {
   }),
   computed: {
     ...mapState(["user", "pendingAction"]),
+    idsToUpdate() {
+      return this.savedKdramas ? this.savedKdramas.map(element => element.wikiaId) : [];
+    },
   },
   watch: {
     user(value) {
@@ -108,8 +126,42 @@ export default {
     hasActions() {
       return this.kdrama.categories && this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
     },
-    toHide() {
-      return this.hideIds && this.hideIds.length && this.hideIds.includes(this.kdrama.id);
+    toUpdate() {
+      return this.idsToUpdate && this.idsToUpdate.length && this.idsToUpdate.includes(this.kdrama.id);
+    },
+    async updateKdrama() {
+      this.loading = true;
+
+      const savedData = this.savedKdramas.find(kdrama => kdrama.wikiaId === this.kdrama.id);
+      const extraInfo = await this.getKramaInfo(this.kdrama.id, this.kdrama.title);
+
+      const toUpdate = {
+        ...savedData,
+        ...this.kdrama,
+        ...extraInfo,
+        id: savedData.id,
+        dateUpdated: (new Date()).toJSON(),
+      };
+
+      this.db.collection('kdramas').doc(savedData.id).set(toUpdate)
+        .then(() => {
+          this.setSnackbar({
+            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
+            color: "success",
+            timeout: 5000
+          });
+
+          this.$emit('updateList');
+        })
+        .catch(error => {
+          console.error(error);
+          this.setSnackbar({
+            msg: "Ha habido un error al actualizar el kdrama.",
+            color: "error",
+            timeout: 10000
+          });
+        })
+        .finally(() => this.loading = false);
     },
     async triggerAction(action, kdrama) {
       this.loading = true;
@@ -196,7 +248,7 @@ export default {
         let trivia = null;
         let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
         if (triviaMatch && triviaMatch.length === 2) {
-          trivia = this.getTrivia(triviaMatch[1]);
+          trivia = this.getTrivia(triviaMatch[1].replaceAll('*', '* '));
         }
 
         return { genre, episodes, synopsis, trivia };
@@ -215,11 +267,11 @@ export default {
           if (regExp2.exec(t)) {
             const result = this.getTrivia(t, rep + 1);
             return {
-              text: result.shift().text,
+              text: result.shift().text.trim(),
               children: result,
             }
           } else {
-            return { text: t };
+            return { text: t.trim() };
           }
         });
     },
