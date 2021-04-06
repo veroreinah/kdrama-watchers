@@ -6,7 +6,7 @@
       color="primary"
     ></v-progress-linear>
 
-    <v-expansion-panels tile v-else-if="kdramas && kdramas.length">
+    <v-expansion-panels tile multiple v-else-if="kdramas && kdramas.length">
       <v-expansion-panel
         v-for="drama in kdramas" :key="drama.id"
       >
