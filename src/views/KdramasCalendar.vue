@@ -21,6 +21,7 @@
             small
             color="grey darken-2"
             @click="prev"
+            :disabled="disablePrev"
           >
             <v-icon small>
               mdi-chevron-left
@@ -32,6 +33,7 @@
             small
             color="grey darken-2"
             @click="next"
+            :disabled="disableNext"
           >
             <v-icon small>
               mdi-chevron-right
@@ -117,6 +119,8 @@ export default {
     calendarTitle: '',
     weekdays: [1, 2, 3, 4, 5, 6, 0],
     selectedDate: undefined,
+    disablePrev: false,
+    disableNext: false,
   }),
   computed: {
     ...mapState(["user"]),
@@ -133,6 +137,26 @@ export default {
       } else {
         return this.kdramas;
       }
+    },
+    minDate() {
+      let minDate = new Date();
+      this.kdramas.forEach(kdrama => {
+        if (kdrama.start < minDate) {
+          minDate = kdrama.start;
+        }
+      });
+
+      return minDate;
+    },
+    maxDate() {
+      let maxDate = new Date();
+      this.kdramas.forEach(kdrama => {
+        if (kdrama.end > maxDate) {
+          maxDate = kdrama.end;
+        }
+      });
+
+      return maxDate;
     },
   },
   mixins: [
@@ -189,6 +213,12 @@ export default {
   updated() {
     if (this.$refs.calendar) {
       this.calendarTitle = this.$refs.calendar.title;
+      
+      const start = this.$refs.calendar.lastStart;
+      const end = this.$refs.calendar.lastEnd;
+
+      this.disablePrev = (start.month - 1) <= this.minDate.getMonth() && start.year <= this.minDate.getFullYear();
+      this.disableNext = (end.month - 1) >= this.maxDate.getMonth() && end.year >= this.maxDate.getFullYear();
     }
   },
 }
