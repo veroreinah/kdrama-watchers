@@ -22,6 +22,20 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+    <v-btn
+      v-show="showGoTop"
+      v-scroll="onScroll"
+      fab
+      small
+      fixed
+      bottom
+      right
+      color="primary"
+      @click="$vuetify.goTo(0)"
+    >
+      <v-icon>mdi-chevron-up</v-icon>
+    </v-btn>
   </v-app>
 </template>
 
@@ -31,14 +45,21 @@ import { mapState, mapActions } from "vuex";
 
 export default {
   name: 'App',
-  components: {
-    Header,
-  },
+  data: () => ({
+    showGoTop: false,
+  }),
   computed: {
     ...mapState(["snackbar"])
   },
+  components: {
+    Header,
+  },
   methods: {
     ...mapActions(["setSnackbar"]),
+    onScroll(e) {
+      const top = window.pageYOffset || e.target.scrollTop || 0;
+      this.showGoTop = top > 200;
+    },
   },
 };
 </script>
