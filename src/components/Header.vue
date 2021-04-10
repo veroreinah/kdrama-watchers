@@ -13,7 +13,9 @@
       ></v-img>
     </template>
 
-    <v-toolbar-title>Kdrama watchers</v-toolbar-title>
+    <v-toolbar-title>
+      <router-link class="title-link" :to="{ name: 'Home' }">Kdrama watchers</router-link>
+    </v-toolbar-title>
 
     <v-spacer></v-spacer>
 
@@ -65,3 +67,10 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.title-link {
+  color: #fff;
+  text-decoration: none;
+}
+</style>
