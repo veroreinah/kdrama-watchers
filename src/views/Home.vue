@@ -86,6 +86,7 @@ export default {
             if (result.data && result.data.query.search.length) {
               const imagesName = [];
               const imagesPerPage = {};
+              const noImages = [];
 
               const data = result.data.query.search.map(item => {
                 let imageName = item.snippet.match(/(Archivo:.*)\|thumb/);
@@ -98,11 +99,34 @@ export default {
                   imagesPerPage[item.pageid] = imageName[1];
                 }
 
+                if (!imageName) {
+                  noImages.push({ id: item.pageid, title: item.title });
+                }
+
                 return {
                   id: item.pageid,
                   title: item.title,
                 };
               });
+
+              for (const page of noImages) {
+                const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${page.title}&rvslots=*&rvprop=content`);
+                      
+                if (pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages && pageInfo.data.query.pages[page.id]) {
+                  const pageRevisions = pageInfo.data.query.pages[page.id].revisions;
+                  const lastRevision = pageRevisions[pageRevisions.length - 1].slots.main['*'];
+                  
+                  let imageName = lastRevision.match(/(Archivo:.*)\|thumb/);
+                  if (!imageName || imageName.length < 2) {
+                    imageName = lastRevision.match(/(Imagen:.*)\|thumb/);
+                  }
+
+                  if (imageName && imageName.length >= 2) {
+                    imagesName.push(imageName[1]);
+                    imagesPerPage[page.id] = imageName[1];
+                  }
+                }
+              }
 
               if (imagesName.length) {
                 const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${imagesName.join('|')}&iiprop=url`);

@@ -220,7 +220,7 @@ export default {
     async getKramaInfo(id, title) {
       const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${title}&rvslots=*&rvprop=content`);
 
-      if (kdramaInfo.data, kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
+      if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
         const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
 
