@@ -7,7 +7,17 @@
     ></v-progress-linear>
 
     <template v-else-if="kdramas && kdramas.length">
-      <KdramasFilter :kdramas="kdramas" @filterChange="filterChange" />
+      <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
+        <v-btn
+          v-if="list === 'wishlist'"
+          depressed
+          tile
+          color="secondary"
+          @click="pickOneRandomly"
+        >
+          ¿Cuál veo ahora?
+        </v-btn>
+      </KdramasFilter>
 
       <v-expansion-panels tile multiple>
         <v-expansion-panel
@@ -16,6 +26,8 @@
           <KdramaPanel :kdrama="drama" @updateList="getData()" />
         </v-expansion-panel>
       </v-expansion-panels>
+
+      <KdramaDialog :open="open" :kdrama="randomKdrama" @close="closeDialog" @updateList="getData()" />
     </template>
 
     <div v-else-if="kdramas && !kdramas.length">
@@ -32,6 +44,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import KdramaPanel from '@/components/KdramaPanel';
+import KdramaDialog from '@/components/KdramaDialog';
 import KdramasFilter from '@/components/KdramasFilter';
 import { mapActions, mapState } from 'vuex';
 import { tools } from "@/mixins/tools";
@@ -45,6 +58,8 @@ export default {
     loading: false,
     kdramasRef: undefined,
     kdramas: [],
+    randomKdrama: undefined,
+    open: false,
     filterGenre: [],
     filterCategories: [],
   }),
@@ -77,6 +92,7 @@ export default {
   components: {
     KdramaPanel,
     KdramasFilter,
+    KdramaDialog,
   },
   mixins: [
     tools,
@@ -108,6 +124,14 @@ export default {
     filterChange(filters) {
       this.filterGenre = filters.genre;
       this.filterCategories = filters.categories;
+    },
+    pickOneRandomly() {
+      this.randomKdrama = this.filteredKdramas[Math.floor(Math.random() * this.filteredKdramas.length)];
+      this.open = true;
+    },
+    closeDialog() {
+      this.randomKdrama = undefined;
+      this.open = false;
     },
   },
   created() {
