@@ -41,12 +41,11 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
 import KdramaPanel from '@/components/KdramaPanel';
 import KdramaDialog from '@/components/KdramaDialog';
 import KdramasFilter from '@/components/KdramasFilter';
-import { mapActions, mapState } from 'vuex';
+import { mapState } from 'vuex';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -56,7 +55,6 @@ export default {
   ],
   data: () => ({
     loading: false,
-    kdramasRef: undefined,
     kdramas: [],
     randomKdrama: undefined,
     open: false,
@@ -95,30 +93,15 @@ export default {
     KdramaDialog,
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     getData() {
       this.loading = true;
-      
-      this.kdramasRef
-        .where("user", "==", this.user.uid)
-        .where("list", "==", this.list)
-        .orderBy(this.getListProp(this.list, 'sortField'), "desc")
-        .get()
-        .then(querySnapshot => {
-          this.kdramas = [];
-          querySnapshot.forEach(doc => this.kdramas.push({ id: doc.id, ...doc.data() }));
-        })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al recuperar el listado de kdramas.",
-            color: "error",
-            timeout: 10000
-          });
-        })
+
+      this.getKdramas(this.user, ["==", this.list], [this.list, "desc"])
+        .then(kdramas => this.kdramas = kdramas)
         .finally(() => this.loading = false);
     },
     filterChange(filters) {
@@ -135,8 +118,6 @@ export default {
     },
   },
   created() {
-    const db = firebase.firestore();
-    this.kdramasRef = db.collection('kdramas');
     this.getData();
   },
 }

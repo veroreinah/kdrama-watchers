@@ -80,5 +80,5 @@ export const tools = {
         return list[field];
       }
     },
-  }
-}
+  },
+};

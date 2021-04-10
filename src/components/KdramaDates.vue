@@ -76,9 +76,7 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { mapActions } from 'vuex';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -87,17 +85,16 @@ export default {
     kdrama: { type: Object, required: true },
   },
   data: () => ({
-    db: undefined,
     loading: false,
     error: undefined,
     dialog: false,
     dates: [],
   }),
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     validateDates() {
       if (Array.isArray(this.dates))
         return this.dates.length === 2;
@@ -120,26 +117,12 @@ export default {
           toSave = { ...this.kdrama, dateStart: this.dates };
         }
 
-        this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
+        this.updateKdrama(toSave)
           .then(() => {
-            this.setSnackbar({
-              msg: `Kdrama "${toSave.title}" actualizado correctamente.`,
-              color: "success",
-              timeout: 5000
-            });
-
             this.$emit('updateList');
           })
-          .catch(error => {
-            console.error(error);
-            this.setSnackbar({
-              msg: "Ha habido un error al actualizar los datos de este kdrama.",
-              color: "error",
-              timeout: 10000
-            });
-          })
           .finally(() => {
-            this.loading = false
+            this.loading = false;
             this.dialog = false;
           });
       } else {
@@ -149,8 +132,6 @@ export default {
     },
   },
   created() {
-    this.db = firebase.firestore();
-
     if (this.kdrama.dateStart) {
       if (this.kdrama.dateEnd) {
         this.dates.push(this.kdrama.dateStart);
