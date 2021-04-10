@@ -51,7 +51,7 @@
                 fab
                 depressed
                 x-small
-                color="secondary"
+                color="primary"
                 :loading="currentAction === 'delete' && loading"
                 :disabled="loading"
                 class="ml-1 ml-sm-2"
@@ -62,7 +62,7 @@
               </v-btn>
             </template>
             <v-card>
-              <v-toolbar color="secondary" dark>Eliminar</v-toolbar>
+              <v-toolbar color="primary" dark>Eliminar</v-toolbar>
               <v-card-text class="pa-5">
                 ¿Seguro que quieres eliminar este kdrama?
                 Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
@@ -79,7 +79,7 @@
                 <v-btn
                   tile
                   depressed
-                  color="secondary"
+                  color="primary"
                   @click="deleteKdrama"
                   :loading="currentAction === 'delete' && loading"
                   :disabled="loading"
