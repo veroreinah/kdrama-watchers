@@ -9,7 +9,7 @@
                 v-for="(star, key) in kdramaRating" 
                 :key="key"
                 :color="star.color"
-                @click.stop="changeRating(key + 1)"
+                @click.stop="changeRating((key + 1) * 2)"
               >{{ star.icon }}</v-icon>
               <v-btn
                 v-if="rating !== kdrama.rating"
@@ -164,13 +164,13 @@ export default {
   methods: {
     changeRating(rating) {
       if (this.rating === rating) {
-        this.rating = rating - 0.5;
-      } else if (rating === 1 && this.rating === 0.5) {
+        this.rating = rating - 1;
+      } else if (rating === 2 && this.rating === 1) {
         this.rating = 0;
       } else {
         this.rating = rating;
       }
-      this.setkdramaRating(this.rating);
+      this.setkdramaRating(this.rating / 2);
     },
     setkdramaRating(rating) {
       const result = [];
@@ -216,7 +216,7 @@ export default {
       this.loading = true;
       this.currentAction = 'rating';
 
-      const toSave = { ...this.kdrama, rating: this.rating * 2 };
+      const toSave = { ...this.kdrama, rating: this.rating };
 
       this.updateKdrama(toSave)
         .then(() => {
