@@ -36,11 +36,9 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
 import KdramaCard from '@/components/KdramaCard';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
-import { mapActions } from 'vuex';
 
 export default {
   name: 'KdramaDialog',
@@ -49,7 +47,6 @@ export default {
     kdrama: { type: Object },
   },
   data: () => ({
-    db: undefined,
     dialog: false,
     loading: false,
   }),
@@ -62,41 +59,24 @@ export default {
     KdramaCard,
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     moveKdrama() {
       this.loading = true;
       const list = 'currently-watching';
       let toSave = { ...this.kdrama, list, dateStart: (new Date()).toISOString().substr(0, 10) };
 
-      this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
+      this.updateKdrama(toSave)
         .then(() => {
-          this.setSnackbar({
-            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
-            color: "success",
-            timeout: 5000
-          });
-          
           this.$emit('updateList');
-        })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al mover el kdrama a la lista seleccionada.",
-            color: "error",
-            timeout: 10000
-          });
         })
         .finally(() => {
           this.loading = false;
           this.$emit('close');
         });
     },
-  },
-  created() {
-    this.db = firebase.firestore();
   },
 }
 </script>

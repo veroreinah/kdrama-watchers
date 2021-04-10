@@ -24,7 +24,7 @@
           class="col-12 col-sm-6 col-lg-4"
           v-for="result in data" :key="result.id"
         >
-          <KdramaCard :kdrama="result" :savedKdramas="addedKdramas" @updateList="getKdramas" />
+          <KdramaCard :kdrama="result" :savedKdramas="addedKdramas" @updateList="loadKdramas" />
         </div>
       </div>
 
@@ -43,12 +43,10 @@
 </template>
 
 <script>
-import axios from 'axios';
-import firebase from "firebase/app";
-import "firebase/firestore";
 import KdramaCard from '@/components/KdramaCard';
 import Login from '@/components/Login';
 import { mapState } from "vuex";
+import { kdramas } from "@/mixins/kdramas";
 
 export default {
   name: 'Home',
@@ -56,7 +54,6 @@ export default {
     query: '',
     loading: false,
     data: null,
-    db: undefined,
     addedKdramas: [],
   }),
   computed: {
@@ -68,7 +65,7 @@ export default {
     },
     user(value) {
       if (value && value.uid) {
-        this.getKdramas();
+        this.loadKdramas();
       }
     },
   },
@@ -76,107 +73,27 @@ export default {
     KdramaCard,
     Login,
   },
+  mixins: [
+    kdramas,
+  ],
   methods: {
     search() {
       if (this.query) {
         this.loading = true;
-        axios
-          .get(`/api.php?action=query&list=search&srsearch=${this.query}`)
-          .then(async result => {
-            if (result.data && result.data.query.search.length) {
-              const imagesName = [];
-              const imagesPerPage = {};
 
-              const data = result.data.query.search.map(item => {
-                let imageName = item.snippet.match(/(Archivo:.*)\|thumb/);
-                if (!imageName || imageName.length < 2) {
-                  imageName = item.snippet.match(/(Imagen:.*)\|thumb/);
-                }
-
-                if (imageName && imageName.length >= 2) {
-                  imagesName.push(imageName[1]);
-                  imagesPerPage[item.pageid] = imageName[1];
-                }
-
-                return {
-                  id: item.pageid,
-                  title: item.title,
-                };
-              });
-
-              if (imagesName.length) {
-                const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${imagesName.join('|')}&iiprop=url`);
-
-                if (imagesInfo.data && imagesInfo.data.query.pages) {
-                  const images = Object.values(imagesInfo.data.query.pages);
-
-                  if (imagesInfo.data.query.normalized.length) {
-                    Object.keys(imagesPerPage).forEach(key => {
-                      const normalized = imagesInfo.data.query.normalized.find(n => n.from === imagesPerPage[key]);
-
-                      if (normalized && normalized.from && normalized.to) {
-                        imagesPerPage[key] = normalized.to;
-                      }
-                    })
-                  }
-
-                  data.forEach(item => {
-                    const image = images.find(image => image.title === imagesPerPage[item.id]);
-                    if (image && image.imageinfo && image.imageinfo.length) {
-                      item['image'] = image.imageinfo[0].url.replace('https://static', 'https://vignette');
-                    }
-                  });
-                }
-              }
-
-              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => d.title).join('|')}&cllimit=500`);
-              if (categoriesInfo.data && categoriesInfo.data.query.pages) {
-                data.forEach(item => {
-                  if (categoriesInfo.data.query.pages[item.id] && categoriesInfo.data.query.pages[item.id].categories) {
-                    item['categories'] = categoriesInfo.data.query.pages[item.id].categories.map(cat => cat.title.replace('Categoría:', ''));
-                  }
-                });
-              }
-
-              this.data = data;
-            } else {
-              this.data = [];
-            }
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error(error);
-            this.loading = false;
-          });
+        this.searchKdrama(this.query)
+          .then(results => this.data = results)
+          .finally(() => this.loading = false);
       }
     },
-    getKdramas() {
-      if (!this.db) {
-        this.db = firebase.firestore();
-      }
-
-      this.db.collection('kdramas')
-        .where("user", "==", this.user.uid)
-        .get()
-        .then(querySnapshot => {
-          const kdramas = [];
-          querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
-          this.addedKdramas = kdramas;
-        })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al recuperar el listado de kdramas.",
-            color: "error",
-            timeout: 10000
-          });
-        });
+    loadKdramas() {
+      this.getKdramas(this.user)
+        .then(kdramas => this.addedKdramas = kdramas);
     }
   },
   created() {
-    this.db = firebase.firestore();
     if (this.user && this.user.uid) {
-      this.getKdramas();
+      this.loadKdramas();
     }
   },
 }

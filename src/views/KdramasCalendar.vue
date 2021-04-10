@@ -103,9 +103,8 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { mapActions, mapState } from 'vuex';
+import { mapState } from 'vuex';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -113,7 +112,6 @@ export default {
   data: () => ({
     loading: false,
     dialog: false,
-    kdramasRef: undefined,
     kdramas: [],
     value: '',
     calendarTitle: '',
@@ -160,10 +158,10 @@ export default {
     },
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     prev () {
       this.$refs.calendar.prev()
     },
@@ -176,15 +174,9 @@ export default {
     },
     getData() {
       this.loading = true;
-      
-      this.kdramasRef
-        .where("user", "==", this.user.uid)
-        .where("list", "!=", "wishlist")
-        .get()
-        .then(querySnapshot => {
-          const kdramas = [];
-          querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
 
+      this.getKdramas(this.user, ["!=", "wishlist"])
+        .then(kdramas => {
           this.kdramas = kdramas.map(kdrama => ({
             name: `${this.getListProp(kdrama.list, 'emoji')} ${kdrama.title}`,
             start: new Date(kdrama.dateStart),
@@ -194,20 +186,10 @@ export default {
             data: {...kdrama},
           }));
         })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al recuperar el listado de kdramas.",
-            color: "error",
-            timeout: 10000
-          });
-        })
         .finally(() => this.loading = false);
     },
   },
   created() {
-    const db = firebase.firestore();
-    this.kdramasRef = db.collection('kdramas');
     this.getData();
   },
   updated() {

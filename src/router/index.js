@@ -1,6 +1,6 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import Home from '@/views/Home.vue';
 import firebase from "firebase/app";
 
 Vue.use(VueRouter)
@@ -32,6 +32,12 @@ const routes = [
             'abandoned',
           ],
           requiresAuth: true,
+          title: {
+            'wishlist': 'Lista de deseos',
+            'currently-watching': 'Viendo',
+            'already-watched': 'Vistos',
+            'abandoned': 'Abandonados',
+          }
         },
       },
     ],
@@ -42,6 +48,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "calendar" */ '../views/KdramasCalendar.vue'),
     meta: {
       requiresAuth: true,
+      title: 'Calendario',
     },
   },
 ];
@@ -52,8 +59,22 @@ const router = new VueRouter({
   routes
 });
 
+const updateTitle = to => {
+  let windowTitle = 'Kdrama watchers';
+  if (to.meta && to.meta.title) {
+    if (typeof to.meta.title === 'string') {
+      windowTitle += ` - ${to.meta.title}`;
+    } else if (to.params.list && to.meta.title[to.params.list]) {
+      windowTitle += ` - ${to.meta.title[to.params.list]}`;
+    }
+  }
+  window.document.title = windowTitle;
+}
+
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some(x => x.meta.requiresAuth)
+  updateTitle(to);
+
+  const requiresAuth = to.matched.some(x => x.meta.requiresAuth);
 
   if (requiresAuth && !firebase.auth().currentUser) {
     localStorage.setItem('redirectAfterLogin', to.fullPath);
@@ -64,6 +85,8 @@ router.beforeEach((to, from, next) => {
     } else {
       next({ name: 'Home' });
     }
+  } else if (!to.matched || !to.matched.length) {
+    next({ name: 'Home' });
   } else {
     next();
   }

@@ -9,7 +9,7 @@
                 v-for="(star, key) in kdramaRating" 
                 :key="key"
                 :color="star.color"
-                @click.stop="changeRating(key + 1)"
+                @click.stop="changeRating((key + 1) * 2)"
               >{{ star.icon }}</v-icon>
               <v-btn
                 v-if="rating !== kdrama.rating"
@@ -51,7 +51,7 @@
                 fab
                 depressed
                 x-small
-                color="secondary"
+                color="primary"
                 :loading="currentAction === 'delete' && loading"
                 :disabled="loading"
                 class="ml-1 ml-sm-2"
@@ -62,7 +62,7 @@
               </v-btn>
             </template>
             <v-card>
-              <v-toolbar color="secondary" dark>Eliminar</v-toolbar>
+              <v-toolbar color="primary" dark>Eliminar</v-toolbar>
               <v-card-text class="pa-5">
                 ¿Seguro que quieres eliminar este kdrama?
                 Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
@@ -79,8 +79,8 @@
                 <v-btn
                   tile
                   depressed
-                  color="secondary"
-                  @click="deleteKdrama"
+                  color="primary"
+                  @click="removeKdrama"
                   :loading="currentAction === 'delete' && loading"
                   :disabled="loading"
                 >
@@ -97,14 +97,12 @@
       <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" @updateList="$emit('updateList')" />
 
       <template v-for="item in kdramaData">
-        <template v-if="kdrama[item.key]">
-          <div :key="item.key" class="mb-4">
-            <h3>{{ item.label }}</h3>
-            <div v-html="getFormattedText(kdrama[item.key])"></div>
-          </div>
-        </template>
+        <div v-if="kdrama[item.key]" :key="item.key" class="mb-4">
+          <h3>{{ item.label }}</h3>
+          <div v-html="getFormattedText(kdrama[item.key])"></div>
+        </div>
       </template>
-      <div v-if="kdrama.trivia" class="mb-4">
+      <div v-if="kdrama.trivia && kdrama.trivia.length" class="mb-4">
         <h3>Curiosidades</h3>
         <TriviaList :data="kdrama.trivia" />
       </div>
@@ -119,12 +117,10 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
 import KdramaCard from '@/components/KdramaCard';
 import KdramaDates from '@/components/KdramaDates';
 import TriviaList from '@/components/TriviaList';
-import { mapActions } from 'vuex';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -133,7 +129,6 @@ export default {
     kdrama: { type: Object, required: true },
   },
   data: () => ({
-    db: undefined,
     loading: false,
     currentAction: undefined,
     dialog: false,
@@ -163,19 +158,19 @@ export default {
     KdramaDates,
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     changeRating(rating) {
       if (this.rating === rating) {
-        this.rating = rating - 0.5;
-      } else if (rating === 1 && this.rating === 0.5) {
+        this.rating = rating - 1;
+      } else if (rating === 2 && this.rating === 1) {
         this.rating = 0;
       } else {
         this.rating = rating;
       }
-      this.setkdramaRating(this.rating);
+      this.setkdramaRating(this.rating / 2);
     },
     setkdramaRating(rating) {
       const result = [];
@@ -208,53 +203,11 @@ export default {
         toSave = { ...toSave, dateEnd: (new Date()).toISOString().substr(0, 10) };
       }
 
-      this.db.collection('kdramas').doc(this.kdrama.id).set(toSave)
+      this.updateKdrama(toSave)
         .then(() => {
-          this.setSnackbar({
-            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
-            color: "success",
-            timeout: 5000
-          });
-          
           this.$emit('updateList');
         })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al mover el kdrama a la lista seleccionada.",
-            color: "error",
-            timeout: 10000
-          });
-        })
         .finally(() => {
-          this.loading = false;
-          this.currentAction = undefined;
-        });
-    },
-    deleteKdrama() {
-      this.loading = true;
-      this.currentAction = 'delete';
-
-      this.db.collection('kdramas').doc(this.kdrama.id).delete()
-        .then(() => {
-          this.setSnackbar({
-            msg: `Kdrama "${this.kdrama.title}" eliminado.`,
-            color: "success",
-            timeout: 5000
-          });
-          
-          this.$emit('updateList');
-        })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al eliminar el kdrama.",
-            color: "error",
-            timeout: 10000
-          });
-        })
-        .finally(() => {
-          this.dialog = false;
           this.loading = false;
           this.currentAction = undefined;
         });
@@ -263,23 +216,24 @@ export default {
       this.loading = true;
       this.currentAction = 'rating';
 
-      this.db.collection('kdramas').doc(this.kdrama.id).set({ ...this.kdrama, rating: this.rating * 2 })
-        .then(() => {
-          this.setSnackbar({
-            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
-            color: "success",
-            timeout: 5000
-          });
+      const toSave = { ...this.kdrama, rating: this.rating };
 
+      this.updateKdrama(toSave)
+        .then(() => {
           this.kdrama.rating = this.rating;
         })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al valorar el kdrama.",
-            color: "error",
-            timeout: 10000
-          });
+        .finally(() => {
+          this.loading = false;
+          this.currentAction = undefined;
+        });
+    },
+    removeKdrama() {
+      this.loading = true;
+      this.currentAction = 'delete';
+
+      this.deleteKdrama(this.kdrama)
+        .then(() => {
+          this.$emit('updateList');
         })
         .finally(() => {
           this.dialog = false;
@@ -289,7 +243,6 @@ export default {
     },
   },
   created() {
-    this.db = firebase.firestore();
     this.rating = this.kdrama.rating;
     this.setkdramaRating();
   },

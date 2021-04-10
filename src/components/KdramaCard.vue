@@ -52,7 +52,7 @@
                     text
                     small
                     color="secondary"
-                    @click="updateKdrama()"
+                    @click="update()"
                   >
                     <v-icon left>mdi-content-save</v-icon>
                     Actualizar
@@ -86,10 +86,8 @@
 </template>
 
 <script>
-import axios from 'axios';
-import firebase from "firebase/app";
-import "firebase/firestore";
 import { mapActions, mapState } from "vuex";
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -101,7 +99,6 @@ export default {
     savedKdramas: { type: Array },
   },
   data: () => ({
-    db: undefined,
     loading: false,
   }),
   computed: {
@@ -119,17 +116,18 @@ export default {
     },
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setPendingAction", "setSnackbar"]),
+    ...mapActions(["setPendingAction"]),
     hasActions() {
       return this.kdrama.categories && this.kdrama.categories.some(category => category.toLowerCase() === 'kdrama');
     },
     toUpdate() {
       return this.idsToUpdate && this.idsToUpdate.length && this.idsToUpdate.includes(this.kdrama.id);
     },
-    async updateKdrama() {
+    async update() {
       this.loading = true;
 
       const savedData = this.savedKdramas.find(kdrama => kdrama.wikiaId === this.kdrama.id);
@@ -143,23 +141,9 @@ export default {
         dateUpdated: (new Date()).toJSON(),
       };
 
-      this.db.collection('kdramas').doc(savedData.id).set(toUpdate)
+      this.updateKdrama(toUpdate)
         .then(() => {
-          this.setSnackbar({
-            msg: `Kdrama "${this.kdrama.title}" actualizado correctamente.`,
-            color: "success",
-            timeout: 5000
-          });
-
           this.$emit('updateList');
-        })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al actualizar el kdrama.",
-            color: "error",
-            timeout: 10000
-          });
         })
         .finally(() => this.loading = false);
     },
@@ -196,88 +180,13 @@ export default {
 
         delete toSave.id;
 
-        this.db.collection('kdramas').add(toSave)
+        this.addKdrama(toSave)
           .then(() => {
-            this.setSnackbar({
-              msg: `Kdrama "${toSave.title}" añadido correctamente a la lista ${this.getListProp(action, 'label')}.`,
-              color: "success",
-              timeout: 5000
-            });
-
             this.$emit('updateList');
-          })
-          .catch(error => {
-            console.error(error);
-            this.setSnackbar({
-              msg: "Ha habido un error al añadir el kdrama.",
-              color: "error",
-              timeout: 10000
-            });
           })
           .finally(() => this.loading = false);
       }
     },
-    async getKramaInfo(id, title) {
-      const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${title}&rvslots=*&rvprop=content`);
-
-      if (kdramaInfo.data, kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
-        const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
-        const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
-
-        let genre = null;
-        let genreMatch = lastRevision.match(/(?:Género|Genero).*?\s(.*)\n/m);
-        if (genreMatch && genreMatch.length === 2) {
-          genre = genreMatch[1].split(/,/).map(g => g.trim());
-        }
-        
-        let episodes = null;
-        let episodesMatch = lastRevision.match(/Episodios.*?\s(?:''')?(.*)\n/m);
-        if (episodesMatch && episodesMatch.length === 2) {
-          episodes = episodesMatch[1];
-        }
-        
-        let synopsis = null;
-        let synopsisMatch = lastRevision.match(/Sinopsis\s*?==\n(.*?)\n==/s);
-        if (synopsisMatch && synopsisMatch.length === 2) {
-          synopsis = '<p>' + synopsisMatch[1]
-            .replace(/\n\s*\n/g, '\n')
-            .replace(/(?:\r\n|\r|\n)+$/, '')
-            .replace(/(?:\r\n|\r|\n)/g, '</p><p>') + '</p>';
-        }
-        
-        let trivia = null;
-        let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
-        if (triviaMatch && triviaMatch.length === 2) {
-          trivia = this.getTrivia(triviaMatch[1].replaceAll('*', '* '));
-        }
-
-        return { genre, episodes, synopsis, trivia };
-      }
-
-      return {};
-    },
-    getTrivia(text, rep = 1) {
-      const regExp = new RegExp(`(?:\\s|^)\\*{${rep}}(?:\\b|\\s)`);
-      return text
-        .split(regExp)
-        .map(t => t.trim())
-        .filter(t => t)
-        .map(t => {
-          const regExp2 = new RegExp(`(?:\\s|^)\\*{${rep + 1}}(?:\\b|\\s)`);
-          if (regExp2.exec(t)) {
-            const result = this.getTrivia(t, rep + 1);
-            return {
-              text: result.shift().text.trim(),
-              children: result,
-            }
-          } else {
-            return { text: t.trim() };
-          }
-        });
-    },
-  },
-  created() {
-    this.db = firebase.firestore();
   },
 }
 </script>
