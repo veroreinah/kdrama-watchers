@@ -97,14 +97,12 @@
       <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" @updateList="$emit('updateList')" />
 
       <template v-for="item in kdramaData">
-        <template v-if="kdrama[item.key]">
-          <div :key="item.key" class="mb-4">
-            <h3>{{ item.label }}</h3>
-            <div v-html="getFormattedText(kdrama[item.key])"></div>
-          </div>
-        </template>
+        <div v-if="kdrama[item.key]" :key="item.key" class="mb-4">
+          <h3>{{ item.label }}</h3>
+          <div v-html="getFormattedText(kdrama[item.key])"></div>
+        </div>
       </template>
-      <div v-if="kdrama.trivia" class="mb-4">
+      <div v-if="kdrama.trivia && kdrama.trivia.length" class="mb-4">
         <h3>Curiosidades</h3>
         <TriviaList :data="kdrama.trivia" />
       </div>

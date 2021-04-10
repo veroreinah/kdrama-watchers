@@ -248,7 +248,7 @@ export default {
         let trivia = null;
         let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
         if (triviaMatch && triviaMatch.length === 2) {
-          trivia = this.getTrivia(triviaMatch[1].replaceAll('*', '* '));
+          trivia = this.getTrivia(triviaMatch[1].replace(/\*([^*])/g, '* $1'));
         }
 
         return { genre, episodes, synopsis, trivia };
