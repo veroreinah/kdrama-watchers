@@ -21,6 +21,7 @@
             small
             color="grey darken-2"
             @click="prev"
+            :disabled="disablePrev"
           >
             <v-icon small>
               mdi-chevron-left
@@ -32,6 +33,7 @@
             small
             color="grey darken-2"
             @click="next"
+            :disabled="disableNext"
           >
             <v-icon small>
               mdi-chevron-right
@@ -101,9 +103,8 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { mapActions, mapState } from 'vuex';
+import { mapState } from 'vuex';
+import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
@@ -111,12 +112,13 @@ export default {
   data: () => ({
     loading: false,
     dialog: false,
-    kdramasRef: undefined,
     kdramas: [],
     value: '',
     calendarTitle: '',
     weekdays: [1, 2, 3, 4, 5, 6, 0],
     selectedDate: undefined,
+    disablePrev: false,
+    disableNext: false,
   }),
   computed: {
     ...mapState(["user"]),
@@ -134,12 +136,32 @@ export default {
         return this.kdramas;
       }
     },
+    minDate() {
+      let minDate = new Date();
+      this.kdramas.forEach(kdrama => {
+        if (kdrama.start < minDate) {
+          minDate = kdrama.start;
+        }
+      });
+
+      return minDate;
+    },
+    maxDate() {
+      let maxDate = new Date();
+      this.kdramas.forEach(kdrama => {
+        if (kdrama.end > maxDate) {
+          maxDate = kdrama.end;
+        }
+      });
+
+      return maxDate;
+    },
   },
   mixins: [
+    kdramas,
     tools,
   ],
   methods: {
-    ...mapActions(["setSnackbar"]),
     prev () {
       this.$refs.calendar.prev()
     },
@@ -152,15 +174,9 @@ export default {
     },
     getData() {
       this.loading = true;
-      
-      this.kdramasRef
-        .where("user", "==", this.user.uid)
-        .where("list", "!=", "wishlist")
-        .get()
-        .then(querySnapshot => {
-          const kdramas = [];
-          querySnapshot.forEach(doc => kdramas.push({ id: doc.id, ...doc.data() }));
 
+      this.getKdramas(this.user, ["!=", "wishlist"])
+        .then(kdramas => {
           this.kdramas = kdramas.map(kdrama => ({
             name: `${this.getListProp(kdrama.list, 'emoji')} ${kdrama.title}`,
             start: new Date(kdrama.dateStart),
@@ -170,25 +186,21 @@ export default {
             data: {...kdrama},
           }));
         })
-        .catch(error => {
-          console.error(error);
-          this.setSnackbar({
-            msg: "Ha habido un error al recuperar el listado de kdramas.",
-            color: "error",
-            timeout: 10000
-          });
-        })
         .finally(() => this.loading = false);
     },
   },
   created() {
-    const db = firebase.firestore();
-    this.kdramasRef = db.collection('kdramas');
     this.getData();
   },
   updated() {
     if (this.$refs.calendar) {
       this.calendarTitle = this.$refs.calendar.title;
+      
+      const start = this.$refs.calendar.lastStart;
+      const end = this.$refs.calendar.lastEnd;
+
+      this.disablePrev = (start.month - 1) <= this.minDate.getMonth() && start.year <= this.minDate.getFullYear();
+      this.disableNext = (end.month - 1) >= this.maxDate.getMonth() && end.year >= this.maxDate.getFullYear();
     }
   },
 }
