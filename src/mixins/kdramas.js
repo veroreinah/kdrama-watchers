@@ -142,9 +142,9 @@ export const kdramas = {
               const noImages = [];
 
               const data = result.data.query.search.map(item => {
-                let imageName = item.snippet.match(/(Archivo:.*)\|thumb/);
+                let imageName = item.snippet.match(/(Archivo:.*?)\|/);
                 if (!imageName || imageName.length < 2) {
-                  imageName = item.snippet.match(/(Imagen:.*)\|thumb/);
+                  imageName = item.snippet.match(/(Imagen:.*?)\|/);
                 }
 
                 if (imageName && imageName.length >= 2) {
@@ -169,9 +169,9 @@ export const kdramas = {
                   const pageRevisions = pageInfo.data.query.pages[page.id].revisions;
                   const lastRevision = pageRevisions[pageRevisions.length - 1].slots.main['*'];
                   
-                  let imageName = lastRevision.match(/(Archivo:.*)\|thumb/);
+                  let imageName = lastRevision.match(/(Archivo:.*?)\|/);
                   if (!imageName || imageName.length < 2) {
-                    imageName = lastRevision.match(/(Imagen:.*)\|thumb/);
+                    imageName = lastRevision.match(/(Imagen:.*?)\|/);
                   }
 
                   if (imageName && imageName.length >= 2) {
