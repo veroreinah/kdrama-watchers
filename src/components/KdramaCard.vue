@@ -12,8 +12,8 @@
 
       <div class="flex-grow-1 d-flex flex-column justify-space-between">
         <div>
-          <v-card-title>
-            {{ kdrama.title }}
+          <v-card-title class="d-flex flex-column flex-sm-row align-start align-sm-center">
+            <h2 class="kdrama-title">{{ kdrama.title }}</h2>
             <slot name="afterTitle"></slot>
           </v-card-title>
           <div v-if="kdrama.genre || kdrama.categories" class="pl-4 pr-3">
@@ -190,3 +190,12 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.kdrama-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.0125em;
+  line-height: 2rem;
+}
+</style>
