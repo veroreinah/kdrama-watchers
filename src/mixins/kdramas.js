@@ -142,9 +142,7 @@ export const kdramas = {
               const noImages = [];
 
               const data = result.data.query.search.map(item => {
-                console.log(JSON.stringify(item.snippet));
                 let imageName = item.snippet.match(/(Archivo:.*?)\|/);
-                console.log(imageName);
                 if (!imageName || imageName.length < 2) {
                   imageName = item.snippet.match(/(Imagen:.*?)\|/);
                 }
