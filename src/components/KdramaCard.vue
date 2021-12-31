@@ -31,7 +31,7 @@
           </div>
         </div>
 
-        <v-card-actions v-if="!hideActions && hasActions()">
+        <v-card-actions v-if="!hideActions">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -118,14 +118,6 @@ export default {
   mixins: [kdramas, tools],
   methods: {
     ...mapActions(["setPendingAction"]),
-    hasActions() {
-      return (
-        this.kdrama.categories &&
-        this.kdrama.categories.some(
-          (category) => category.toLowerCase() === "kdrama"
-        )
-      );
-    },
     toUpdate() {
       return (
         this.idsToUpdate &&

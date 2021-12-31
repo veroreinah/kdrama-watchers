@@ -34,7 +34,7 @@ export const kdramas = {
               .where("user", "==", user.uid);
           }
         }
-        
+
         kdramasCollection.get()
           .then(querySnapshot => {
             const kdramas = [];
@@ -53,7 +53,7 @@ export const kdramas = {
 
             reject();
           });
-        });
+      });
     },
 
     addKdrama(kdrama) {
@@ -115,7 +115,7 @@ export const kdramas = {
               color: "success",
               timeout: 5000
             });
-            
+
             resolve();
           })
           .catch(error => {
@@ -164,11 +164,11 @@ export const kdramas = {
 
               for (const page of noImages) {
                 const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${page.title}&rvslots=*&rvprop=content`);
-                      
+
                 if (pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages && pageInfo.data.query.pages[page.id]) {
                   const pageRevisions = pageInfo.data.query.pages[page.id].revisions;
                   const lastRevision = pageRevisions[pageRevisions.length - 1].slots.main['*'];
-                  
+
                   let imageName = lastRevision.match(/(Archivo:.*?)\|/);
                   if (!imageName || imageName.length < 2) {
                     imageName = lastRevision.match(/(Imagen:.*?)\|/);
@@ -215,7 +215,11 @@ export const kdramas = {
                 });
               }
 
-              resolve(data);
+              const kdramasData = data.filter(kdrama => kdrama.categories && kdrama.categories.some(
+                (category) => category.toLowerCase() === "kdrama"
+              ))
+
+              resolve(kdramasData);
             } else {
               resolve([]);
             }
@@ -234,19 +238,20 @@ export const kdramas = {
       if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
         const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
+        console.log(lastRevision);
 
         let genre = null;
         let genreMatch = lastRevision.match(/(?:Género|Genero).*?\s(.*)\n/m);
         if (genreMatch && genreMatch.length === 2) {
           genre = genreMatch[1].split(/,/).map(g => g.trim());
         }
-        
+
         let episodes = null;
         let episodesMatch = lastRevision.match(/Episodios.*?\s(?:''')?(.*)\n/m);
         if (episodesMatch && episodesMatch.length === 2) {
           episodes = episodesMatch[1];
         }
-        
+
         let synopsis = null;
         let synopsisMatch = lastRevision.match(/Sinopsis\s*?==\n(.*?)\n==/s);
         if (synopsisMatch && synopsisMatch.length === 2) {
@@ -255,14 +260,17 @@ export const kdramas = {
             .replace(/(?:\r\n|\r|\n)+$/, '')
             .replace(/(?:\r\n|\r|\n)/g, '</p><p>') + '</p>';
         }
-        
+
         let trivia = null;
         let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
         if (triviaMatch && triviaMatch.length === 2) {
           trivia = this.getTrivia(triviaMatch[1].replace(/\*([^*])/g, '* $1'));
         }
 
-        return { genre, episodes, synopsis, trivia };
+        let broadcasting = !!lastRevision.match(/\{\{En emisión}}/s)
+        let comingSoon = !!lastRevision.match(/\{\{Próximos Dramas}}/s)
+
+        return { genre, episodes, synopsis, trivia, broadcasting, comingSoon };
       }
 
       return {};
