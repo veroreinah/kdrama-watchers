@@ -1,5 +1,7 @@
 <template>
   <div class="pt-2">
+    <SearchBox />
+
     <v-progress-linear
       v-if="loading"
       indeterminate
@@ -20,20 +22,26 @@
       </KdramasFilter>
 
       <v-expansion-panels tile multiple>
-        <v-expansion-panel
-          v-for="drama in filteredKdramas" :key="drama.id"
-        >
+        <v-expansion-panel v-for="drama in filteredKdramas" :key="drama.id">
           <KdramaPanel :kdrama="drama" @updateList="getData()" />
         </v-expansion-panel>
       </v-expansion-panels>
 
-      <KdramaDialog :open="open" :kdrama="randomKdrama" @close="closeDialog" @updateList="getData()" />
+      <KdramaDialog
+        :open="open"
+        :kdrama="randomKdrama"
+        @close="closeDialog"
+        @updateList="getData()"
+      />
     </template>
 
     <div v-else-if="kdramas && !kdramas.length">
       <v-card color="primary" dark>
         <v-card-title class="headline">
-          <span>No has añadido ningún kdrama a la lista <strong>"{{ getListProp(list, 'label') }}"</strong>.</span>
+          <span
+            >No has añadido ningún kdrama a la lista
+            <strong>"{{ getListProp(list, "label") }}"</strong>.</span
+          >
         </v-card-title>
       </v-card>
     </div>
@@ -41,18 +49,17 @@
 </template>
 
 <script>
-import KdramaPanel from '@/components/KdramaPanel';
-import KdramaDialog from '@/components/KdramaDialog';
-import KdramasFilter from '@/components/KdramasFilter';
-import { mapState } from 'vuex';
+import SearchBox from "@/components/SearchBox";
+import KdramaPanel from "@/components/KdramaPanel";
+import KdramaDialog from "@/components/KdramaDialog";
+import KdramasFilter from "@/components/KdramasFilter";
+import { mapState } from "vuex";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
-  name: 'KdramasList',
-  props: [
-    'list',
-  ],
+  name: "KdramasList",
+  props: ["list"],
   data: () => ({
     loading: false,
     kdramas: [],
@@ -64,18 +71,26 @@ export default {
   computed: {
     ...mapState(["user"]),
     filteredKdramas() {
-      return this.kdramas.filter(kdrama => {
-        const noFilters = !this.filterGenre.length && !this.filterCategories.length;
+      return this.kdramas.filter((kdrama) => {
+        const noFilters =
+          !this.filterGenre.length && !this.filterCategories.length;
         let resultGenre = [];
         let resultCategories = [];
 
         if (kdrama.genre) {
-          const genreLower = this.filterGenre.map(g => g.toLowerCase());
-          resultGenre = kdrama.genre.filter(genre => noFilters || genreLower.includes(genre.toLowerCase()));
+          const genreLower = this.filterGenre.map((g) => g.toLowerCase());
+          resultGenre = kdrama.genre.filter(
+            (genre) => noFilters || genreLower.includes(genre.toLowerCase())
+          );
         }
         if (kdrama.categories) {
-          const categoriesLower = this.filterCategories.map(c => c.toLowerCase());
-          resultCategories = kdrama.categories.filter(category => noFilters || categoriesLower.includes(category.toLowerCase()));
+          const categoriesLower = this.filterCategories.map((c) =>
+            c.toLowerCase()
+          );
+          resultCategories = kdrama.categories.filter(
+            (category) =>
+              noFilters || categoriesLower.includes(category.toLowerCase())
+          );
         }
 
         return resultGenre.length || resultCategories.length;
@@ -88,28 +103,29 @@ export default {
     },
   },
   components: {
+    SearchBox,
     KdramaPanel,
     KdramasFilter,
     KdramaDialog,
   },
-  mixins: [
-    kdramas,
-    tools,
-  ],
+  mixins: [kdramas, tools],
   methods: {
     getData() {
       this.loading = true;
 
       this.getKdramas(this.user, ["==", this.list], [this.list, "desc"])
-        .then(kdramas => this.kdramas = kdramas)
-        .finally(() => this.loading = false);
+        .then((kdramas) => (this.kdramas = kdramas))
+        .finally(() => (this.loading = false));
     },
     filterChange(filters) {
       this.filterGenre = filters.genre;
       this.filterCategories = filters.categories;
     },
     pickOneRandomly() {
-      this.randomKdrama = this.filteredKdramas[Math.floor(Math.random() * this.filteredKdramas.length)];
+      this.randomKdrama =
+        this.filteredKdramas[
+          Math.floor(Math.random() * this.filteredKdramas.length)
+        ];
       this.open = true;
     },
     closeDialog() {
@@ -120,5 +136,5 @@ export default {
   created() {
     this.getData();
   },
-}
+};
 </script>

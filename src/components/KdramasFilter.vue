@@ -11,24 +11,23 @@
       >
         <v-icon>mdi-close</v-icon>
       </v-btn>
-      <v-btn
-        icon
-        color="accent"
-        @click="toggleFilters"
-      >
-        <v-icon>mdi-magnify</v-icon>
+      <v-btn icon color="accent" @click="toggleFilters">
+        <v-icon>mdi-tune</v-icon>
       </v-btn>
     </div>
 
-    <v-expansion-panels v-if="showFilters" v-model="panel" tile flat multiple accordion>
+    <v-expansion-panels
+      v-if="showFilters"
+      v-model="panel"
+      tile
+      flat
+      multiple
+      accordion
+    >
       <v-expansion-panel>
         <v-expansion-panel-header class="pa-0">Género</v-expansion-panel-header>
         <v-expansion-panel-content class="pa-0">
-          <v-chip-group
-            v-model="genre" 
-            column 
-            multiple 
-          >
+          <v-chip-group v-model="genre" column multiple>
             <v-chip
               filter
               color="accent"
@@ -42,13 +41,11 @@
       </v-expansion-panel>
 
       <v-expansion-panel>
-        <v-expansion-panel-header class="pa-0">Categorías</v-expansion-panel-header>
+        <v-expansion-panel-header class="pa-0"
+          >Categorías</v-expansion-panel-header
+        >
         <v-expansion-panel-content class="pa-0">
-          <v-chip-group
-            v-model="categories" 
-            column 
-            multiple 
-          >
+          <v-chip-group v-model="categories" column multiple>
             <v-chip
               filter
               color="secondary"
@@ -66,7 +63,7 @@
 
 <script>
 export default {
-  name: 'KdramasFilter',
+  name: "KdramasFilter",
   props: {
     kdramas: { type: Array, required: true },
   },
@@ -79,26 +76,32 @@ export default {
   computed: {
     genreFilters() {
       let result = [];
-      this.kdramas.forEach(kdrama => {
+      this.kdramas.forEach((kdrama) => {
         const genre = kdrama.genre ? kdrama.genre : [];
         result = [...result, ...genre];
       });
       result.sort();
-      const resultLower = result.map(r => r.toLowerCase());
+      const resultLower = result.map((r) => r.toLowerCase());
 
-      return result.filter((value, index) => resultLower.indexOf(value.toLowerCase()) === index);
+      return result.filter(
+        (value, index) => resultLower.indexOf(value.toLowerCase()) === index
+      );
     },
     categoriesFilters() {
       let result = [];
-      this.kdramas.forEach(kdrama => {
+      this.kdramas.forEach((kdrama) => {
         const categories = kdrama.categories ? kdrama.categories : [];
         result = [...result, ...categories];
       });
       result.sort();
-      const resultLower = result.map(r => r.toLowerCase());
-      const genreLower = this.genreFilters.map(g => g.toLowerCase());
+      const resultLower = result.map((r) => r.toLowerCase());
+      const genreLower = this.genreFilters.map((g) => g.toLowerCase());
 
-      return result.filter((value, index) => resultLower.indexOf(value.toLowerCase()) === index && !genreLower.includes(value.toLowerCase()));
+      return result.filter(
+        (value, index) =>
+          resultLower.indexOf(value.toLowerCase()) === index &&
+          !genreLower.includes(value.toLowerCase())
+      );
     },
   },
   watch: {
@@ -119,13 +122,15 @@ export default {
     },
     filterChange() {
       const data = {
-        genre: this.genre.map(value => this.genreFilters[value]),
-        categories: this.categories.map(value => this.categoriesFilters[value]),
+        genre: this.genre.map((value) => this.genreFilters[value]),
+        categories: this.categories.map(
+          (value) => this.categoriesFilters[value]
+        ),
       };
-      this.$emit('filterChange', data);
+      this.$emit("filterChange", data);
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -136,7 +141,7 @@ export default {
 
 .v-expansion-panel-content {
   ::v-deep {
-  .v-expansion-panel-content__wrap {
+    .v-expansion-panel-content__wrap {
       padding: 0;
     }
   }
