@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Home from '@/views/Home.vue';
+import Login from '@/views/Login.vue';
 import firebase from "firebase/app";
 
 Vue.use(VueRouter)
@@ -9,7 +9,10 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
+    component: {
+      render: c => c('router-view'),
+    },
+    redirect: '/lists/wishlist',
   },
   {
     path: '/lists',
@@ -25,7 +28,7 @@ const routes = [
         component: () => import(/* webpackChunkName: "list" */ '../views/KdramasList.vue'),
         props: true,
         meta: {
-          availableLists: [ 
+          availableLists: [
             'wishlist',
             'currently-watching',
             'already-watched',
@@ -43,12 +46,30 @@ const routes = [
     ],
   },
   {
+    path: '/search',
+    name: 'Search',
+    component: () => import(/* webpackChunkName: "list" */ '../views/Search.vue'),
+    props: route => ({ ...route.query }),
+    meta: {
+      requiresAuth: true,
+      title: 'Búsqueda',
+    },
+  },
+  {
     path: '/calendar',
     name: 'Kdramas calendar',
     component: () => import(/* webpackChunkName: "calendar" */ '../views/KdramasCalendar.vue'),
     meta: {
       requiresAuth: true,
       title: 'Calendario',
+    },
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: {
+      title: 'Acceso',
     },
   },
 ];
@@ -78,7 +99,7 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !firebase.auth().currentUser) {
     localStorage.setItem('redirectAfterLogin', to.fullPath);
-    next({ name: 'Home', query: { doLogin: true } });
+    next({ name: 'Login' });
   } else if (to.meta.availableLists && to.meta.availableLists.length) {
     if (to.params.list && to.meta.availableLists.includes(to.params.list)) {
       next();

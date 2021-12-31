@@ -38,9 +38,7 @@ export default new Vuex.Store({
       await firebase.auth().signOut();
 
       commit('SET_USER_DATA', null);
-      if (router.currentRoute.name !== 'Home') {
-        router.push({ name: 'Home' });
-      }
+      router.push({ name: 'Login' });
     },
 
     setPendingAction({ commit }, pendingAction) {

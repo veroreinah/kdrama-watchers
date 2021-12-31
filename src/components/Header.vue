@@ -14,14 +14,12 @@
     </template>
 
     <v-toolbar-title>
-      <router-link class="title-link" :to="{ name: 'Home' }">Kdrama watchers</router-link>
+      <router-link class="title-link" :to="{ name: 'Home' }"
+        >Kdrama watchers</router-link
+      >
     </v-toolbar-title>
 
     <v-spacer></v-spacer>
-
-    <v-btn icon :to="{ name: 'Home' }" exact>
-      <v-icon>mdi-magnify</v-icon>
-    </v-btn>
 
     <v-btn icon to="/lists">
       <v-icon>mdi-heart</v-icon>
@@ -38,8 +36,8 @@
     <template v-slot:extension v-if="$route.path.includes('lists')">
       <v-tabs show-arrows grow>
         <v-tab
-          v-for="list in availableLists" 
-          :key="list.route" 
+          v-for="list in availableLists"
+          :key="list.route"
           :to="list.route"
         >
           <v-icon left>{{ list.icon }}</v-icon>
@@ -59,9 +57,7 @@ export default {
   computed: {
     ...mapState(["user"]),
   },
-  mixins: [
-    tools,
-  ],
+  mixins: [tools],
   methods: {
     ...mapActions(["logout"]),
   },

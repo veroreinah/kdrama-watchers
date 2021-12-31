@@ -1,14 +1,10 @@
 <template>
-  <v-dialog v-model="dialog" transition="dialog-top-transition" max-width="600" @click:outside="close">
+  <div class="pt-2">
     <form @submit.prevent="doLogin">
       <v-card>
         <v-toolbar color="secondary" dark>Login</v-toolbar>
         <v-card-text>
-          <v-alert
-            v-if="error"
-            dense
-            type="error"
-          >
+          <v-alert v-if="error" dense type="error">
             {{ error }}
           </v-alert>
 
@@ -31,19 +27,15 @@
           <v-btn
             depressed
             tile
-            @click="close"
-          >Cancelar</v-btn>
-          <v-btn
-            depressed
-            tile
             color="secondary"
             :loading="loading"
             type="submit"
-          >Acceder</v-btn>
+            >Acceder</v-btn
+          >
         </v-card-actions>
       </v-card>
     </form>
-  </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -52,13 +44,12 @@ import { mapActions, mapState } from "vuex";
 export default {
   name: "Login",
   data: () => ({
-    dialog: false,
     loading: false,
     loginForm: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
-    error: ''
+    error: "",
   }),
   computed: {
     ...mapState(["user"]),
@@ -73,21 +64,21 @@ export default {
     doLogin() {
       if (this.loginForm.email && this.loginForm.password) {
         this.loading = true;
-        this.error = '';
+        this.error = "";
 
         this.login(this.loginForm)
           .then(() => {
             this.reset();
 
-            if (localStorage.getItem('redirectAfterLogin')) {
-              const toRedirect = localStorage.getItem('redirectAfterLogin');
-              localStorage.removeItem('redirectAfterLogin');
+            if (localStorage.getItem("redirectAfterLogin")) {
+              const toRedirect = localStorage.getItem("redirectAfterLogin");
+              localStorage.removeItem("redirectAfterLogin");
               this.$router.push(toRedirect);
             } else {
               this.$router.push({ name: "Home" });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             this.error = error.message;
 
             console.error(error);
@@ -97,26 +88,13 @@ export default {
           });
       }
     },
-    close() {
-      this.reset();
-      this.$router.push({ name: "Home" });
-    },
     reset() {
       this.loginForm = {
-        email: '',
-        password: '',
+        email: "",
+        password: "",
       };
-      this.error = '';
-      this.dialog = false;
+      this.error = "";
     },
-    checkLogin() {
-      if (!this.user && this.$route.query.doLogin) {
-        this.dialog = true;
-      }
-    },
-  },
-  created() {
-    this.checkLogin();
   },
 };
 </script>
