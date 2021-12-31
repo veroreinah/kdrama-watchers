@@ -107,12 +107,30 @@
         <h3>Curiosidades</h3>
         <TriviaList :data="kdrama.trivia" />
       </div>
-      <div class="text-right text-caption font-italic">
-        Añadido: {{ getDateTime(kdrama.dateAdd) }}
-        <template v-if="kdrama.dateUpdated">
-          - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
-        </template>
-      </div>
+
+      <v-row align="center">
+        <v-col cols="2">
+          <v-btn
+            fab
+            depressed
+            x-small
+            color="secondary"
+            :loading="currentAction === 'update' && loading"
+            :disabled="loading"
+            @click.stop="update()"
+          >
+            <v-icon>mdi-rotate-360</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="10">
+          <div class="text-right text-caption font-italic">
+            Añadido: {{ getDateTime(kdrama.dateAdd) }}
+            <template v-if="kdrama.dateUpdated">
+              - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
+            </template>
+          </div>
+        </v-col>
+      </v-row>
     </v-expansion-panel-content>
   </div>
 </template>
@@ -247,6 +265,30 @@ export default {
         })
         .finally(() => {
           this.dialog = false;
+          this.loading = false;
+          this.currentAction = undefined;
+        });
+    },
+    async update() {
+      this.loading = true;
+      this.currentAction = "update";
+
+      const extraInfo = await this.getKramaInfo(
+        this.kdrama.wikiaId,
+        this.kdrama.title
+      );
+
+      const toUpdate = {
+        ...this.kdrama,
+        ...extraInfo,
+        dateUpdated: new Date().toJSON(),
+      };
+
+      this.updateKdrama(toUpdate)
+        .then(() => {
+          this.$emit("updateList");
+        })
+        .finally(() => {
           this.loading = false;
           this.currentAction = undefined;
         });

@@ -60,7 +60,7 @@
               <v-list-item>
                 <v-list-item-content>
                   <v-btn text small color="secondary" @click="update()">
-                    <v-icon left>mdi-content-save</v-icon>
+                    <v-icon left>mdi-rotate-360</v-icon>
                     Actualizar
                   </v-btn>
                 </v-list-item-content>
