@@ -54,10 +54,10 @@ export const tools = {
         const [year, month, day] = date.split('-');
         return `${day}/${month}/${year}`;
       } else if (typeof date === 'object') {
-      const day = date.getDate();
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `${day < 10 ? `0${day}` : day}/${month < 10 ? `0${month}` : month}/${year}`;
       }
     },
     parseDate(date) {

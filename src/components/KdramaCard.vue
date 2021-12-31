@@ -4,7 +4,6 @@
       <v-img
         :src="kdrama.image || mobileBg"
         :lazy-src="mobileBg"
-        :height="small ? 100 : 200"
         :width="small ? 70 : 140"
         :max-width="small ? 70 : 140"
         gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"
@@ -18,6 +17,15 @@
             <h2 class="kdrama-title">{{ kdrama.title }}</h2>
             <slot name="afterTitle"></slot>
           </v-card-title>
+
+          <v-card-subtitle v-if="kdrama.broadcasting">
+            En emisión
+          </v-card-subtitle>
+
+          <v-card-subtitle v-if="kdrama.comingSoon">
+            Próximamente
+          </v-card-subtitle>
+
           <div v-if="kdrama.genre || kdrama.categories" class="pl-4 pr-3">
             <v-chip
               v-for="category in kdrama.genre || kdrama.categories"
@@ -31,7 +39,7 @@
           </div>
         </div>
 
-        <v-card-actions v-if="!hideActions && hasActions()">
+        <v-card-actions v-if="!hideActions">
           <v-spacer></v-spacer>
 
           <v-menu offset-y left tile>
@@ -52,7 +60,7 @@
               <v-list-item>
                 <v-list-item-content>
                   <v-btn text small color="secondary" @click="update()">
-                    <v-icon left>mdi-content-save</v-icon>
+                    <v-icon left>mdi-rotate-360</v-icon>
                     Actualizar
                   </v-btn>
                 </v-list-item-content>
@@ -118,14 +126,6 @@ export default {
   mixins: [kdramas, tools],
   methods: {
     ...mapActions(["setPendingAction"]),
-    hasActions() {
-      return (
-        this.kdrama.categories &&
-        this.kdrama.categories.some(
-          (category) => category.toLowerCase() === "kdrama"
-        )
-      );
-    },
     toUpdate() {
       return (
         this.idsToUpdate &&

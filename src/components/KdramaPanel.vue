@@ -5,12 +5,13 @@
         <KdramaCard :kdrama="kdrama" small hide-actions>
           <template v-if="kdrama.list !== 'wishlist'" v-slot:afterTitle>
             <div class="text-no-wrap ml-sm-2">
-              <v-icon 
-                v-for="(star, key) in kdramaRating" 
+              <v-icon
+                v-for="(star, key) in kdramaRating"
                 :key="key"
                 :color="star.color"
                 @click.stop="changeRating((key + 1) * 2)"
-              >{{ star.icon }}</v-icon>
+                >{{ star.icon }}</v-icon
+              >
               <v-btn
                 v-if="rating !== kdrama.rating"
                 fab
@@ -28,7 +29,9 @@
           </template>
         </KdramaCard>
 
-        <div class="px-2 px-sm-4 py-4 d-flex flex-column d-sm-block text-no-wrap">
+        <div
+          class="px-2 px-sm-4 py-4 d-flex flex-column d-sm-block text-no-wrap"
+        >
           <template v-if="kdramaActions && kdramaActions.length">
             <v-btn
               v-for="action in kdramaActions"
@@ -64,18 +67,12 @@
             <v-card>
               <v-toolbar color="primary" dark>Eliminar</v-toolbar>
               <v-card-text class="pa-5">
-                ¿Seguro que quieres eliminar este kdrama?
-                Esta acción no se puede deshacer, pero podrás volver a añadirlo desde el buscador.
+                ¿Seguro que quieres eliminar este kdrama? Esta acción no se
+                puede deshacer, pero podrás volver a añadirlo desde el buscador.
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn
-                  tile
-                  depressed
-                  @click="dialog = false"
-                >
-                  Cancelar
-                </v-btn>
+                <v-btn tile depressed @click="dialog = false"> Cancelar </v-btn>
                 <v-btn
                   tile
                   depressed
@@ -94,7 +91,11 @@
     </v-expansion-panel-header>
 
     <v-expansion-panel-content class="pt-5">
-      <KdramaDates v-if="kdrama.dateStart" :kdrama="kdrama" @updateList="$emit('updateList')" />
+      <KdramaDates
+        v-if="kdrama.dateStart"
+        :kdrama="kdrama"
+        @updateList="$emit('updateList')"
+      />
 
       <template v-for="item in kdramaData">
         <div v-if="kdrama[item.key]" :key="item.key" class="mb-4">
@@ -106,25 +107,43 @@
         <h3>Curiosidades</h3>
         <TriviaList :data="kdrama.trivia" />
       </div>
-      <div class="text-right text-caption font-italic">
-        Añadido: {{ getDateTime(kdrama.dateAdd) }}
-        <template v-if="kdrama.dateUpdated">
-          - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
-        </template>
-      </div>
+
+      <v-row align="center">
+        <v-col cols="2">
+          <v-btn
+            fab
+            depressed
+            x-small
+            color="secondary"
+            :loading="currentAction === 'update' && loading"
+            :disabled="loading"
+            @click.stop="update()"
+          >
+            <v-icon>mdi-rotate-360</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="10">
+          <div class="text-right text-caption font-italic">
+            Añadido: {{ getDateTime(kdrama.dateAdd) }}
+            <template v-if="kdrama.dateUpdated">
+              - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
+            </template>
+          </div>
+        </v-col>
+      </v-row>
     </v-expansion-panel-content>
   </div>
 </template>
 
 <script>
-import KdramaCard from '@/components/KdramaCard';
-import KdramaDates from '@/components/KdramaDates';
-import TriviaList from '@/components/TriviaList';
+import KdramaCard from "@/components/KdramaCard";
+import KdramaDates from "@/components/KdramaDates";
+import TriviaList from "@/components/TriviaList";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
-  name: 'KdramaPanel',
+  name: "KdramaPanel",
   props: {
     kdrama: { type: Object, required: true },
   },
@@ -134,12 +153,16 @@ export default {
     dialog: false,
     kdramaData: [
       {
-        label: 'Episodios',
-        key: 'episodes',
+        label: "Episodios",
+        key: "episodes",
       },
       {
-        label: 'Sinopsis',
-        key: 'synopsis',
+        label: "Emisión",
+        key: "broadcastDate",
+      },
+      {
+        label: "Sinopsis",
+        key: "synopsis",
       },
     ],
     rating: 0,
@@ -147,8 +170,12 @@ export default {
   }),
   computed: {
     kdramaActions() {
-      return this.availableLists.filter(list => {
-        return list.actionInLists && list.actionInLists.includes(this.kdrama.list);
+      return this.availableLists.filter((list) => {
+        return (
+          list.actionInLists &&
+          list.actionInLists.includes(this.kdrama.list) &&
+          !this.kdrama.comingSoon
+        );
       });
     },
   },
@@ -157,10 +184,7 @@ export default {
     TriviaList,
     KdramaDates,
   },
-  mixins: [
-    kdramas,
-    tools,
-  ],
+  mixins: [kdramas, tools],
   methods: {
     changeRating(rating) {
       if (this.rating === rating) {
@@ -174,20 +198,21 @@ export default {
     },
     setkdramaRating(rating) {
       const result = [];
-      const kdramaRating = rating || (this.kdrama.rating ? this.kdrama.rating / 2 : 0);
+      const kdramaRating =
+        rating || (this.kdrama.rating ? this.kdrama.rating / 2 : 0);
       for (let index = 0; index < 5; index++) {
-        let icon = 'mdi-star';
-        let color = 'warning';
-        if (kdramaRating < (index + 1)) {
+        let icon = "mdi-star";
+        let color = "warning";
+        if (kdramaRating < index + 1) {
           if (kdramaRating > index) {
-            icon = 'mdi-star-half-full';
+            icon = "mdi-star-half-full";
           } else {
-            icon = 'mdi-star-outline';
-            color = '#bdbdbd';
+            icon = "mdi-star-outline";
+            color = "#bdbdbd";
           }
         }
 
-        result.push({ icon, color, });
+        result.push({ icon, color });
       }
 
       this.kdramaRating = result;
@@ -197,15 +222,18 @@ export default {
       this.currentAction = list;
       let toSave = { ...this.kdrama, list };
 
-      if (list === 'currently-watching') {
-        toSave = { ...toSave, dateStart: (new Date()).toISOString().substr(0, 10) };
-      } else if (list === 'already-watched' || list === 'abandoned') {
-        toSave = { ...toSave, dateEnd: (new Date()).toISOString().substr(0, 10) };
+      if (list === "currently-watching") {
+        toSave = {
+          ...toSave,
+          dateStart: new Date().toISOString().substr(0, 10),
+        };
+      } else if (list === "already-watched" || list === "abandoned") {
+        toSave = { ...toSave, dateEnd: new Date().toISOString().substr(0, 10) };
       }
 
       this.updateKdrama(toSave)
         .then(() => {
-          this.$emit('updateList');
+          this.$emit("updateList");
         })
         .finally(() => {
           this.loading = false;
@@ -214,7 +242,7 @@ export default {
     },
     rateKdrama() {
       this.loading = true;
-      this.currentAction = 'rating';
+      this.currentAction = "rating";
 
       const toSave = { ...this.kdrama, rating: this.rating };
 
@@ -229,14 +257,38 @@ export default {
     },
     removeKdrama() {
       this.loading = true;
-      this.currentAction = 'delete';
+      this.currentAction = "delete";
 
       this.deleteKdrama(this.kdrama)
         .then(() => {
-          this.$emit('updateList');
+          this.$emit("updateList");
         })
         .finally(() => {
           this.dialog = false;
+          this.loading = false;
+          this.currentAction = undefined;
+        });
+    },
+    async update() {
+      this.loading = true;
+      this.currentAction = "update";
+
+      const extraInfo = await this.getKramaInfo(
+        this.kdrama.wikiaId,
+        this.kdrama.title
+      );
+
+      const toUpdate = {
+        ...this.kdrama,
+        ...extraInfo,
+        dateUpdated: new Date().toJSON(),
+      };
+
+      this.updateKdrama(toUpdate)
+        .then(() => {
+          this.$emit("updateList");
+        })
+        .finally(() => {
           this.loading = false;
           this.currentAction = undefined;
         });
@@ -246,7 +298,7 @@ export default {
     this.rating = this.kdrama.rating;
     this.setkdramaRating();
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
