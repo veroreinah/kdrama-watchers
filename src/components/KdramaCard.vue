@@ -4,7 +4,6 @@
       <v-img
         :src="kdrama.image || mobileBg"
         :lazy-src="mobileBg"
-        :height="small ? 100 : 200"
         :width="small ? 70 : 140"
         :max-width="small ? 70 : 140"
         gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"

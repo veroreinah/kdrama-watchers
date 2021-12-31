@@ -238,7 +238,6 @@ export const kdramas = {
       if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
         const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
-        console.log(lastRevision);
 
         let genre = null;
         let genreMatch = lastRevision.match(/(?:Género|Genero).*?\s(.*)\n/m);
@@ -250,6 +249,12 @@ export const kdramas = {
         let episodesMatch = lastRevision.match(/Episodios.*?\s(?:''')?(.*)\n/m);
         if (episodesMatch && episodesMatch.length === 2) {
           episodes = episodesMatch[1];
+        }
+
+        let broadcastDate = null;
+        let broadcastDateMatch = lastRevision.match(/Periodo de emisión.*?\s(?:''')?(.*)\n/m);
+        if (broadcastDateMatch && broadcastDateMatch.length === 2) {
+          broadcastDate = broadcastDateMatch[1];
         }
 
         let synopsis = null;
@@ -270,7 +275,7 @@ export const kdramas = {
         let broadcasting = !!lastRevision.match(/\{\{En emisión}}/s)
         let comingSoon = !!lastRevision.match(/\{\{Próximos Dramas}}/s)
 
-        return { genre, episodes, synopsis, trivia, broadcasting, comingSoon };
+        return { genre, episodes, broadcastDate, synopsis, trivia, broadcasting, comingSoon };
       }
 
       return {};

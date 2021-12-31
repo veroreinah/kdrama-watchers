@@ -139,6 +139,10 @@ export default {
         key: "episodes",
       },
       {
+        label: "Emisión",
+        key: "broadcastDate",
+      },
+      {
         label: "Sinopsis",
         key: "synopsis",
       },
