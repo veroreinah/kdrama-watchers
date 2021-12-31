@@ -18,6 +18,15 @@
             <h2 class="kdrama-title">{{ kdrama.title }}</h2>
             <slot name="afterTitle"></slot>
           </v-card-title>
+
+          <v-card-subtitle v-if="kdrama.broadcasting">
+            En emisión
+          </v-card-subtitle>
+
+          <v-card-subtitle v-if="kdrama.comingSoon">
+            Próximamente
+          </v-card-subtitle>
+
           <div v-if="kdrama.genre || kdrama.categories" class="pl-4 pr-3">
             <v-chip
               v-for="category in kdrama.genre || kdrama.categories"
