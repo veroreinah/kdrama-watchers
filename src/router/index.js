@@ -65,6 +65,15 @@ const routes = [
     },
   },
   {
+    path: '/statistics',
+    name: 'Kdramas statistics',
+    component: () => import(/* webpackChunkName: "statistics" */ '../views/KdramasStatistics.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Estadísticas',
+    },
+  },
+  {
     path: '/login',
     name: 'Login',
     component: Login,
