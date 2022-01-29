@@ -163,7 +163,7 @@ export const kdramas = {
               });
 
               for (const page of noImages) {
-                const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${page.title}&rvslots=*&rvprop=content`);
+                const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(page.title)}&rvslots=*&rvprop=content`);
 
                 if (pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages && pageInfo.data.query.pages[page.id]) {
                   const pageRevisions = pageInfo.data.query.pages[page.id].revisions;
@@ -182,7 +182,7 @@ export const kdramas = {
               }
 
               if (imagesName.length) {
-                const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${imagesName.join('|')}&iiprop=url`);
+                const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${encodeURIComponent(imagesName.join('|'))}&iiprop=url`);
 
                 if (imagesInfo.data && imagesInfo.data.query.pages) {
                   const images = Object.values(imagesInfo.data.query.pages);
@@ -206,7 +206,7 @@ export const kdramas = {
                 }
               }
 
-              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => d.title).join('|')}&cllimit=500`);
+              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => encodeURIComponent(d.title)).join('|')}&cllimit=500`);
               if (categoriesInfo.data && categoriesInfo.data.query.pages) {
                 data.forEach(item => {
                   if (categoriesInfo.data.query.pages[item.id] && categoriesInfo.data.query.pages[item.id].categories) {
@@ -233,7 +233,7 @@ export const kdramas = {
     },
 
     async getKramaInfo(id, title) {
-      const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${title}&rvslots=*&rvprop=content`);
+      const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(title)}&rvslots=*&rvprop=content`);
 
       if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
