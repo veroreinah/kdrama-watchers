@@ -147,25 +147,22 @@ export default {
             this.setYearData(kdramaData);
           });
 
-          console.log("años", this.years);
-          console.log("data", this.data);
-
           this.years.forEach((year) => {
-            const yearKdramas = this.data[year].kdramas
+            const yearWatchedKdramas = this.data[year]["already-watched"]
               .filter((kdrama) => kdrama.rating !== null)
               .map((kdrama) => ({
                 title: kdrama.title,
                 rating: kdrama.rating,
               }));
 
-            if (yearKdramas.length) {
-              yearKdramas.sort((a, b) => b.rating - a.rating);
-              const bestRate = yearKdramas[0].rating;
+            if (yearWatchedKdramas.length) {
+              yearWatchedKdramas.sort((a, b) => b.rating - a.rating);
+              const bestRate = yearWatchedKdramas[0].rating;
 
               this.data[year].bestRate = bestRate;
-              this.data[year].bestRated = this.data[year].kdramas.filter(
-                (kdrama) => kdrama.rating === bestRate
-              );
+              this.data[year].bestRated = this.data[year][
+                "already-watched"
+              ].filter((kdrama) => kdrama.rating === bestRate);
             }
           });
         })
