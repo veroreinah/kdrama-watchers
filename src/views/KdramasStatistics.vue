@@ -7,59 +7,77 @@
     ></v-progress-linear>
 
     <template v-else-if="years && years.length">
-      <v-sheet height="90">
-        <v-toolbar flat height="90">
-          <v-toolbar-title>
-            Kdramas del año<br />
-            <em class="text-h2">{{ selectedYear }}</em>
-          </v-toolbar-title>
+      <v-toolbar flat height="auto">
+        <v-spacer></v-spacer>
 
-          <v-spacer></v-spacer>
+        <v-btn
+          fab
+          text
+          small
+          color="grey darken-2"
+          @click="prev"
+          :disabled="selectedYear === sortedYears[0]"
+        >
+          <v-icon> mdi-chevron-left </v-icon>
+        </v-btn>
+        <v-btn
+          fab
+          text
+          small
+          color="grey darken-2"
+          @click="next"
+          :disabled="selectedYear === sortedYears[sortedYears.length - 1]"
+        >
+          <v-icon> mdi-chevron-right </v-icon>
+        </v-btn>
+      </v-toolbar>
 
-          <v-btn
-            fab
-            text
-            small
-            color="grey darken-2"
-            @click="prev"
-            :disabled="selectedYear === sortedYears[0]"
-            align-self-start
-          >
-            <v-icon small> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            text
-            small
-            color="grey darken-2"
-            @click="next"
-            :disabled="selectedYear === sortedYears[sortedYears.length - 1]"
-          >
-            <v-icon small> mdi-chevron-right </v-icon>
-          </v-btn>
-        </v-toolbar>
-      </v-sheet>
+      <v-container fluid>
+        <v-row dense>
+          <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.flex">
+            <v-card
+              height="100%"
+              :color="card.color"
+              dark
+              class="d-flex flex-column justify-center align-center text-center"
+            >
+              <v-img
+                v-if="card.background"
+                :src="card.background"
+                gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
+                :height="cardHeight"
+              >
+                <div
+                  class="d-flex flex-column justify-center align-center"
+                  style="height: 100%"
+                >
+                  <v-card-subtitle v-if="card.text" class="pb-0">
+                    {{ card.text }}
+                  </v-card-subtitle>
+                  <v-card-title>
+                    {{ card.highlighted }}
+                  </v-card-title>
+                  <v-card-text v-if="card.emoji" class="text-center">
+                    {{ card.emoji }}
+                  </v-card-text>
+                </div>
+              </v-img>
 
-      <div v-if="data[selectedYear].added">
-        Añadidos: {{ data[selectedYear].added.length }}
-      </div>
-      <div v-if="data[selectedYear].started">
-        Empezados: {{ data[selectedYear].started.length }}
-      </div>
-      <div v-if="data[selectedYear]['already-watched']">
-        Vistos: {{ data[selectedYear]["already-watched"].length }}
-      </div>
-      <div v-if="data[selectedYear].bestRate">
-        Mejor valorados ({{ data[selectedYear].bestRate }}):
-        <ul>
-          <li v-for="kdrama in data[selectedYear].bestRated" :key="kdrama.id">
-            {{ kdrama.title }}
-          </li>
-        </ul>
-      </div>
-      <div v-if="data[selectedYear].abandoned">
-        Abandonados: {{ data[selectedYear].abandoned.length }}
-      </div>
+              <template v-else>
+                <v-card-subtitle v-if="card.text" class="pb-0">
+                  {{ card.text }}
+                </v-card-subtitle>
+                <v-card-title>
+                  {{ card.highlighted }}
+                </v-card-title>
+                <v-card-text v-if="card.emoji" class="text-center">
+                  {{ card.emoji }}
+                </v-card-text>
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
     </template>
 
     <div v-else-if="years && !years.length">
@@ -76,6 +94,13 @@
 import { mapState } from "vuex";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
+import cardBg1 from "@/assets/img/card-bg-1.jpg";
+import cardBg2 from "@/assets/img/card-bg-2.jpg";
+import cardBg3 from "@/assets/img/card-bg-3.jpg";
+import cardBg4 from "@/assets/img/card-bg-4.jpg";
+import cardBg5 from "@/assets/img/card-bg-5.jpg";
+import cardBg6 from "@/assets/img/card-bg-6.jpg";
+import cardBg7 from "@/assets/img/card-bg-7.jpg";
 
 export default {
   name: "KdramasStatistics",
@@ -92,6 +117,97 @@ export default {
       years.sort((a, b) => a - b);
 
       return years;
+    },
+    cardHeight() {
+      if (this.$vuetify.breakpoint.name === "xs") {
+        return 200;
+      }
+
+      return 300;
+    },
+    cards() {
+      const result = [];
+      const added = this.data[this.selectedYear].added || [];
+      const started = this.data[this.selectedYear].started || [];
+      const watched = this.data[this.selectedYear]["already-watched"] || [];
+      const abandoned = this.data[this.selectedYear].abandoned || [];
+      const bestRated = this.data[this.selectedYear].bestRated || [];
+
+      const images = [
+        cardBg1,
+        cardBg2,
+        cardBg3,
+        cardBg4,
+        cardBg5,
+        cardBg6,
+        cardBg7,
+      ];
+      images.sort(() => Math.random() - 0.5);
+
+      result.push({
+        text: "Kdramas del año",
+        highlighted: this.selectedYear,
+        background: images[0],
+        flex: 4,
+      });
+
+      if (bestRated.length) {
+        result.push({
+          highlighted: bestRated[0].title,
+          emoji: "⭐️⭐️⭐️⭐️⭐️",
+          background: bestRated[0].image,
+          flex: 8,
+        });
+      }
+
+      result.push({
+        text: "Vistos",
+        highlighted: watched.length,
+        emoji: "🎉",
+        background: images[1],
+        flex: 6,
+      });
+
+      result.push({
+        text: "Mejor valoración",
+        highlighted: this.data[this.selectedYear].bestRate,
+        emoji: "⭐️⭐️⭐️⭐️⭐️",
+        color: "primary",
+        flex: 6,
+      });
+
+      if (bestRated.length > 1) {
+        result.push({
+          highlighted: bestRated[1].title,
+          emoji: "⭐️⭐️⭐️⭐️⭐️",
+          background: bestRated[1].image,
+          flex: 12,
+        });
+      }
+
+      result.push({
+        text: "Añadidos",
+        highlighted: added.length,
+        color: "secondary",
+        flex: 4,
+      });
+
+      result.push({
+        text: "Empezados",
+        highlighted: started.length,
+        background: images[2],
+        flex: 4,
+      });
+
+      result.push({
+        text: "Abandonados",
+        highlighted: abandoned.length,
+        emoji: "💔",
+        color: "accent",
+        flex: 4,
+      });
+
+      return result;
     },
   },
   watch: {
