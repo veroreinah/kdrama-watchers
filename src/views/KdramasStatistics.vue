@@ -32,52 +32,23 @@
         </v-btn>
       </v-toolbar>
 
-      <v-container fluid>
-        <v-row dense>
-          <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.flex">
-            <v-card
-              height="100%"
-              :color="card.color"
-              dark
-              class="d-flex flex-column justify-center align-center text-center"
+      <v-row dense>
+        <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.cols">
+          <v-card height="100%" :color="card.color" dark>
+            <v-img
+              v-if="card.background"
+              :src="card.background"
+              gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
+              :height="getHeight(card)"
+              minHeight="100%"
             >
-              <v-img
-                v-if="card.background"
-                :src="card.background"
-                gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
-                :height="cardHeight"
-              >
-                <div
-                  class="d-flex flex-column justify-center align-center"
-                  style="height: 100%"
-                >
-                  <v-card-subtitle v-if="card.text" class="pb-0">
-                    {{ card.text }}
-                  </v-card-subtitle>
-                  <v-card-title>
-                    {{ card.highlighted }}
-                  </v-card-title>
-                  <v-card-text v-if="card.emoji" class="text-center">
-                    {{ card.emoji }}
-                  </v-card-text>
-                </div>
-              </v-img>
+              <KdramaStatisticsCard :card="card" imageFirst />
+            </v-img>
 
-              <template v-else>
-                <v-card-subtitle v-if="card.text" class="pb-0">
-                  {{ card.text }}
-                </v-card-subtitle>
-                <v-card-title>
-                  {{ card.highlighted }}
-                </v-card-title>
-                <v-card-text v-if="card.emoji" class="text-center">
-                  {{ card.emoji }}
-                </v-card-text>
-              </template>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+            <KdramaStatisticsCard v-else :card="card" />
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
 
     <div v-else-if="years && !years.length">
@@ -94,13 +65,8 @@
 import { mapState } from "vuex";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
-import cardBg1 from "@/assets/img/card-bg-1.jpg";
-import cardBg2 from "@/assets/img/card-bg-2.jpg";
-import cardBg3 from "@/assets/img/card-bg-3.jpg";
-import cardBg4 from "@/assets/img/card-bg-4.jpg";
-import cardBg5 from "@/assets/img/card-bg-5.jpg";
-import cardBg6 from "@/assets/img/card-bg-6.jpg";
-import cardBg7 from "@/assets/img/card-bg-7.jpg";
+import { statistics } from "@/mixins/statistics";
+import KdramaStatisticsCard from "@/components/KdramaStatisticsCard";
 
 export default {
   name: "KdramasStatistics",
@@ -118,96 +84,42 @@ export default {
 
       return years;
     },
-    cardHeight() {
-      if (this.$vuetify.breakpoint.name === "xs") {
-        return 200;
-      }
-
-      return 300;
-    },
     cards() {
-      const result = [];
-      const added = this.data[this.selectedYear].added || [];
-      const started = this.data[this.selectedYear].started || [];
-      const watched = this.data[this.selectedYear]["already-watched"] || [];
-      const abandoned = this.data[this.selectedYear].abandoned || [];
-      const bestRated = this.data[this.selectedYear].bestRated || [];
+      const sorted = [...this.data[this.selectedYear].sortedRating] || [];
+      const bestRate = this.data[this.selectedYear].bestRate;
 
-      const images = [
-        cardBg1,
-        cardBg2,
-        cardBg3,
-        cardBg4,
-        cardBg5,
-        cardBg6,
-        cardBg7,
-      ];
-      images.sort(() => Math.random() - 0.5);
+      const cols = this.getCols(sorted.length);
 
-      result.push({
-        text: "Kdramas del año",
-        highlighted: this.selectedYear,
-        background: images[0],
-        flex: 4,
+      const cards = this.basicCards.map((card) => {
+        const newCard = { ...card };
+        const data = this.data[this.selectedYear][newCard.type];
+        const kdrama = newCard.type === "sortedRating" && sorted.shift();
+
+        newCard.text = this.cardsText[newCard.type];
+        newCard.highlighted =
+          newCard.type === "year"
+            ? this.selectedYear
+            : Array.isArray(data)
+            ? data.length
+            : data;
+        newCard.emoji = this.cardsEmoji[newCard.type];
+
+        if (kdrama) {
+          newCard.highlighted = kdrama.title;
+          newCard.image = kdrama.image;
+          newCard.emoji = bestRate === kdrama.rating ? "⭐️⭐️⭐️⭐️⭐️" : null;
+        }
+
+        if (newCard.type === "sortedRating" && !kdrama) {
+          newCard.toRemove = true;
+        }
+
+        return newCard;
       });
 
-      if (bestRated.length) {
-        result.push({
-          highlighted: bestRated[0].title,
-          emoji: "⭐️⭐️⭐️⭐️⭐️",
-          background: bestRated[0].image,
-          flex: 8,
-        });
-      }
-
-      result.push({
-        text: "Vistos",
-        highlighted: watched.length,
-        emoji: "🎉",
-        background: images[1],
-        flex: 6,
-      });
-
-      result.push({
-        text: "Mejor valoración",
-        highlighted: this.data[this.selectedYear].bestRate,
-        emoji: "⭐️⭐️⭐️⭐️⭐️",
-        color: "primary",
-        flex: 6,
-      });
-
-      if (bestRated.length > 1) {
-        result.push({
-          highlighted: bestRated[1].title,
-          emoji: "⭐️⭐️⭐️⭐️⭐️",
-          background: bestRated[1].image,
-          flex: 12,
-        });
-      }
-
-      result.push({
-        text: "Añadidos",
-        highlighted: added.length,
-        color: "secondary",
-        flex: 4,
-      });
-
-      result.push({
-        text: "Empezados",
-        highlighted: started.length,
-        background: images[2],
-        flex: 4,
-      });
-
-      result.push({
-        text: "Abandonados",
-        highlighted: abandoned.length,
-        emoji: "💔",
-        color: "accent",
-        flex: 4,
-      });
-
-      return result;
+      return cards
+        .filter((card) => !card.toRemove)
+        .map((card, idx) => ({ ...card, cols: cols[idx] }));
     },
   },
   watch: {
@@ -217,7 +129,10 @@ export default {
       }
     },
   },
-  mixins: [kdramas, tools],
+  components: {
+    KdramaStatisticsCard,
+  },
+  mixins: [kdramas, tools, statistics],
   methods: {
     prev() {
       const currentIndex = this.sortedYears.indexOf(this.selectedYear);
@@ -228,6 +143,13 @@ export default {
       const currentIndex = this.sortedYears.indexOf(this.selectedYear);
 
       this.selectedYear = this.sortedYears[currentIndex + 1];
+    },
+    getHeight(card) {
+      if (this.$vuetify.breakpoint.name === "xs") {
+        return card.image && card.cols !== 12 ? "auto" : 200;
+      }
+
+      return 300;
     },
     getData() {
       this.loading = true;
@@ -263,60 +185,9 @@ export default {
             this.setYearData(kdramaData);
           });
 
-          this.years.forEach((year) => {
-            const yearWatchedKdramas = this.data[year]["already-watched"]
-              .filter((kdrama) => kdrama.rating !== null)
-              .map((kdrama) => ({
-                title: kdrama.title,
-                rating: kdrama.rating,
-              }));
-
-            if (yearWatchedKdramas.length) {
-              yearWatchedKdramas.sort((a, b) => b.rating - a.rating);
-              const bestRate = yearWatchedKdramas[0].rating;
-
-              this.data[year].bestRate = bestRate;
-              this.data[year].bestRated = this.data[year][
-                "already-watched"
-              ].filter((kdrama) => kdrama.rating === bestRate);
-            }
-          });
+          this.setSortedKdramasData();
         })
         .finally(() => (this.loading = false));
-    },
-
-    setYearData(kdrama) {
-      const { yearAdded, yearStarted, yearEnded, list } = kdrama;
-
-      yearAdded && this.addYear(yearAdded, "added", kdrama);
-      yearStarted && this.addYear(yearStarted, "started", kdrama);
-      yearEnded && this.addYear(yearEnded, list, kdrama);
-    },
-
-    addYear(year, list, kdrama) {
-      if (!this.years.includes(year)) {
-        this.years.push(year);
-      }
-
-      if (!this.data[year]) {
-        this.data[year] = {
-          kdramas: [],
-          [list]: [],
-        };
-      }
-
-      if (!this.data[year][list]) {
-        this.data[year] = { ...this.data[year], [list]: [] };
-      }
-
-      const alreadyAdded = this.data[year].kdramas.some(
-        (addedKdrama) => addedKdrama.id === kdrama.id
-      );
-
-      if (!alreadyAdded) {
-        this.data[year].kdramas = [...this.data[year].kdramas, kdrama];
-      }
-      this.data[year][list] = [...this.data[year][list], kdrama];
     },
   },
   created() {
