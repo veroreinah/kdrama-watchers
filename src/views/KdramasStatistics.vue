@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-2">
+  <div class="pt-2 mx-auto" style="max-width: 1185px">
     <v-progress-linear
       v-if="loading"
       indeterminate
