@@ -7,59 +7,48 @@
     ></v-progress-linear>
 
     <template v-else-if="years && years.length">
-      <v-sheet height="90">
-        <v-toolbar flat height="90">
-          <v-toolbar-title>
-            Kdramas del año<br />
-            <em class="text-h2">{{ selectedYear }}</em>
-          </v-toolbar-title>
+      <v-toolbar flat height="auto">
+        <v-spacer></v-spacer>
 
-          <v-spacer></v-spacer>
+        <v-btn
+          fab
+          text
+          small
+          color="grey darken-2"
+          @click="prev"
+          :disabled="selectedYear === sortedYears[0]"
+        >
+          <v-icon> mdi-chevron-left </v-icon>
+        </v-btn>
+        <v-btn
+          fab
+          text
+          small
+          color="grey darken-2"
+          @click="next"
+          :disabled="selectedYear === sortedYears[sortedYears.length - 1]"
+        >
+          <v-icon> mdi-chevron-right </v-icon>
+        </v-btn>
+      </v-toolbar>
 
-          <v-btn
-            fab
-            text
-            small
-            color="grey darken-2"
-            @click="prev"
-            :disabled="selectedYear === sortedYears[0]"
-            align-self-start
-          >
-            <v-icon small> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn
-            fab
-            text
-            small
-            color="grey darken-2"
-            @click="next"
-            :disabled="selectedYear === sortedYears[sortedYears.length - 1]"
-          >
-            <v-icon small> mdi-chevron-right </v-icon>
-          </v-btn>
-        </v-toolbar>
-      </v-sheet>
+      <v-row dense>
+        <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.cols">
+          <v-card height="100%" :color="card.color" dark>
+            <v-img
+              v-if="card.background"
+              :src="card.background"
+              gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
+              :height="getHeight(card)"
+              minHeight="100%"
+            >
+              <KdramaStatisticsCard :card="card" imageFirst />
+            </v-img>
 
-      <div v-if="data[selectedYear].added">
-        Añadidos: {{ data[selectedYear].added.length }}
-      </div>
-      <div v-if="data[selectedYear].started">
-        Empezados: {{ data[selectedYear].started.length }}
-      </div>
-      <div v-if="data[selectedYear]['already-watched']">
-        Vistos: {{ data[selectedYear]["already-watched"].length }}
-      </div>
-      <div v-if="data[selectedYear].bestRate">
-        Mejor valorados ({{ data[selectedYear].bestRate }}):
-        <ul>
-          <li v-for="kdrama in data[selectedYear].bestRated" :key="kdrama.id">
-            {{ kdrama.title }}
-          </li>
-        </ul>
-      </div>
-      <div v-if="data[selectedYear].abandoned">
-        Abandonados: {{ data[selectedYear].abandoned.length }}
-      </div>
+            <KdramaStatisticsCard v-else :card="card" />
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
 
     <div v-else-if="years && !years.length">
@@ -76,6 +65,8 @@
 import { mapState } from "vuex";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
+import { statistics } from "@/mixins/statistics";
+import KdramaStatisticsCard from "@/components/KdramaStatisticsCard";
 
 export default {
   name: "KdramasStatistics",
@@ -93,6 +84,43 @@ export default {
 
       return years;
     },
+    cards() {
+      const sorted = [...this.data[this.selectedYear].sortedRating] || [];
+      const bestRate = this.data[this.selectedYear].bestRate;
+
+      const cols = this.getCols(sorted.length);
+
+      const cards = this.basicCards.map((card) => {
+        const newCard = { ...card };
+        const data = this.data[this.selectedYear][newCard.type];
+        const kdrama = newCard.type === "sortedRating" && sorted.shift();
+
+        newCard.text = this.cardsText[newCard.type];
+        newCard.highlighted =
+          newCard.type === "year"
+            ? this.selectedYear
+            : Array.isArray(data)
+            ? data.length
+            : data;
+        newCard.emoji = this.cardsEmoji[newCard.type];
+
+        if (kdrama) {
+          newCard.highlighted = kdrama.title;
+          newCard.image = kdrama.image;
+          newCard.emoji = bestRate === kdrama.rating ? "⭐️⭐️⭐️⭐️⭐️" : null;
+        }
+
+        if (newCard.type === "sortedRating" && !kdrama) {
+          newCard.toRemove = true;
+        }
+
+        return newCard;
+      });
+
+      return cards
+        .filter((card) => !card.toRemove)
+        .map((card, idx) => ({ ...card, cols: cols[idx] }));
+    },
   },
   watch: {
     sortedYears(value) {
@@ -101,7 +129,10 @@ export default {
       }
     },
   },
-  mixins: [kdramas, tools],
+  components: {
+    KdramaStatisticsCard,
+  },
+  mixins: [kdramas, tools, statistics],
   methods: {
     prev() {
       const currentIndex = this.sortedYears.indexOf(this.selectedYear);
@@ -112,6 +143,13 @@ export default {
       const currentIndex = this.sortedYears.indexOf(this.selectedYear);
 
       this.selectedYear = this.sortedYears[currentIndex + 1];
+    },
+    getHeight(card) {
+      if (this.$vuetify.breakpoint.name === "xs") {
+        return card.image && card.cols !== 12 ? "auto" : 200;
+      }
+
+      return 300;
     },
     getData() {
       this.loading = true;
@@ -147,60 +185,9 @@ export default {
             this.setYearData(kdramaData);
           });
 
-          this.years.forEach((year) => {
-            const yearWatchedKdramas = this.data[year]["already-watched"]
-              .filter((kdrama) => kdrama.rating !== null)
-              .map((kdrama) => ({
-                title: kdrama.title,
-                rating: kdrama.rating,
-              }));
-
-            if (yearWatchedKdramas.length) {
-              yearWatchedKdramas.sort((a, b) => b.rating - a.rating);
-              const bestRate = yearWatchedKdramas[0].rating;
-
-              this.data[year].bestRate = bestRate;
-              this.data[year].bestRated = this.data[year][
-                "already-watched"
-              ].filter((kdrama) => kdrama.rating === bestRate);
-            }
-          });
+          this.setSortedKdramasData();
         })
         .finally(() => (this.loading = false));
-    },
-
-    setYearData(kdrama) {
-      const { yearAdded, yearStarted, yearEnded, list } = kdrama;
-
-      yearAdded && this.addYear(yearAdded, "added", kdrama);
-      yearStarted && this.addYear(yearStarted, "started", kdrama);
-      yearEnded && this.addYear(yearEnded, list, kdrama);
-    },
-
-    addYear(year, list, kdrama) {
-      if (!this.years.includes(year)) {
-        this.years.push(year);
-      }
-
-      if (!this.data[year]) {
-        this.data[year] = {
-          kdramas: [],
-          [list]: [],
-        };
-      }
-
-      if (!this.data[year][list]) {
-        this.data[year] = { ...this.data[year], [list]: [] };
-      }
-
-      const alreadyAdded = this.data[year].kdramas.some(
-        (addedKdrama) => addedKdrama.id === kdrama.id
-      );
-
-      if (!alreadyAdded) {
-        this.data[year].kdramas = [...this.data[year].kdramas, kdrama];
-      }
-      this.data[year][list] = [...this.data[year][list], kdrama];
     },
   },
   created() {
