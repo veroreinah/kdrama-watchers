@@ -130,18 +130,24 @@ export default {
       return (
         this.idsToUpdate &&
         this.idsToUpdate.length &&
-        this.idsToUpdate.includes(this.kdrama.id)
+        (this.idsToUpdate.includes(this.kdrama.id) ||
+          (this.kdrama.seasons &&
+            this.idsToUpdate.includes(this.kdrama.originalId) &&
+            this.kdrama.season === "1"))
       );
     },
     async update() {
       this.loading = true;
 
       const savedData = this.savedKdramas.find(
-        (kdrama) => kdrama.wikiaId === this.kdrama.id
+        (kdrama) =>
+          kdrama.wikiaId === this.kdrama.id ||
+          kdrama.wikiaId === this.kdrama.originalId
       );
       const extraInfo = await this.getKramaInfo(
-        this.kdrama.id,
-        this.kdrama.title
+        this.kdrama.originalId || this.kdrama.id,
+        this.kdrama.originalTitle || this.kdrama.title,
+        this.kdrama.season
       );
 
       const toUpdate = {
@@ -151,6 +157,8 @@ export default {
         id: savedData.id,
         dateUpdated: new Date().toJSON(),
       };
+
+      delete toUpdate.imageName;
 
       this.updateKdrama(toUpdate)
         .then(() => {
@@ -165,7 +173,11 @@ export default {
         this.setPendingAction({ action, kdrama });
         this.$router.push({ name: "Login" });
       } else {
-        const extraInfo = await this.getKramaInfo(kdrama.id, kdrama.title);
+        const extraInfo = await this.getKramaInfo(
+          kdrama.originalId || kdrama.id,
+          kdrama.originalTitle || kdrama.title,
+          this.kdrama.season
+        );
         let dateStart = null;
         let dateEnd = null;
         const now = new Date();
@@ -190,6 +202,7 @@ export default {
         };
 
         delete toSave.id;
+        delete toSave.imageName;
 
         this.addKdrama(toSave)
           .then(() => {
