@@ -137,80 +137,51 @@ export const kdramas = {
           .get(`/api.php?action=query&list=search&srsearch=${query}`)
           .then(async result => {
             if (result.data && result.data.query.search.length) {
-              const imagesName = [];
-              const imagesPerPage = {};
-              const noImages = [];
+              const data = [];
 
-              const data = result.data.query.search.map(item => {
-                let imageName = item.snippet.match(/(Archivo:.*?)\|/);
-                if (!imageName || imageName.length < 2) {
-                  imageName = item.snippet.match(/(Imagen:.*?)\|/);
-                }
+              for (let i = 0; i < result.data.query.search.length; i++) {
+                const item = result.data.query.search[i];
+                const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(item.title)}&rvslots=*&rvprop=content`);
 
-                if (imageName && imageName.length >= 2) {
-                  imagesName.push(imageName[1]);
-                  imagesPerPage[item.pageid] = imageName[1];
-                }
-
-                if (!imageName) {
-                  noImages.push({ id: item.pageid, title: item.title });
-                }
-
-                return {
-                  id: item.pageid,
-                  title: item.title,
-                };
-              });
-
-              for (const page of noImages) {
-                const pageInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(page.title)}&rvslots=*&rvprop=content`);
-
-                if (pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages && pageInfo.data.query.pages[page.id]) {
-                  const pageRevisions = pageInfo.data.query.pages[page.id].revisions;
+                if (pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages && pageInfo.data.query.pages[item.pageid]) {
+                  const pageRevisions = pageInfo.data.query.pages[item.pageid].revisions;
                   const lastRevision = pageRevisions[pageRevisions.length - 1].slots.main['*'];
+                  const kdramaContent = lastRevision.split(/==Temporada\s/);
 
-                  let imageName = lastRevision.match(/(Archivo:.*?)\|/);
-                  if (!imageName || imageName.length < 2) {
-                    imageName = lastRevision.match(/(Imagen:.*?)\|/);
-                  }
+                  if (kdramaContent.length > 1) {
+                    kdramaContent.forEach(content => {
+                      let season = content.match(/^(\d)==/);
 
-                  if (imageName && imageName.length >= 2) {
-                    imagesName.push(imageName[1]);
-                    imagesPerPage[page.id] = imageName[1];
-                  }
-                }
-              }
-
-              if (imagesName.length) {
-                const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${encodeURIComponent(imagesName.join('|'))}&iiprop=url`);
-
-                if (imagesInfo.data && imagesInfo.data.query.pages) {
-                  const images = Object.values(imagesInfo.data.query.pages);
-
-                  if (imagesInfo.data.query.normalized.length) {
-                    Object.keys(imagesPerPage).forEach(key => {
-                      const normalized = imagesInfo.data.query.normalized.find(n => n.from === imagesPerPage[key]);
-
-                      if (normalized && normalized.from && normalized.to) {
-                        imagesPerPage[key] = normalized.to;
+                      if (season && season.length === 2) {
+                        data.push({
+                          id: `${item.pageid}-${season[1]}`,
+                          originalId: item.pageid,
+                          title: `${item.title} (${season[1]})`,
+                          originalTitle: item.title,
+                          seasons: kdramaContent.length - 1,
+                          season: season[1],
+                          imageName: this.getImageName(content)
+                        });
                       }
                     })
+                  } else {
+                    data.push({
+                      id: item.pageid,
+                      title: item.title,
+                      originalTitle: item.title,
+                      imageName: this.getImageName(lastRevision)
+                    });
                   }
-
-                  data.forEach(item => {
-                    const image = images.find(image => image.title === imagesPerPage[item.id]);
-                    if (image && image.imageinfo && image.imageinfo.length) {
-                      item['image'] = image.imageinfo[0].url.replace('https://static', 'https://vignette');
-                    }
-                  });
                 }
               }
 
-              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => encodeURIComponent(d.title)).join('|')}&cllimit=500`);
+              const categoriesInfo = await axios.get(`/api.php?action=query&prop=categories&titles=${data.map(d => encodeURIComponent(d.originalTitle)).join('|')}&cllimit=500`);
+
               if (categoriesInfo.data && categoriesInfo.data.query.pages) {
                 data.forEach(item => {
-                  if (categoriesInfo.data.query.pages[item.id] && categoriesInfo.data.query.pages[item.id].categories) {
-                    item['categories'] = categoriesInfo.data.query.pages[item.id].categories.map(cat => cat.title.replace('Categoría:', ''));
+                  const id = typeof item.id === "string" ? item.id.split("-")[0] : item.id;
+                  if (categoriesInfo.data.query.pages[id] && categoriesInfo.data.query.pages[id].categories) {
+                    item['categories'] = categoriesInfo.data.query.pages[id].categories.map(cat => cat.title.replace('Categoría:', ''));
                   }
                 });
               }
@@ -218,6 +189,22 @@ export const kdramas = {
               const kdramasData = data.filter(kdrama => kdrama.categories && kdrama.categories.some(
                 (category) => category.toLowerCase() === "kdrama"
               ))
+
+              for (let index = 0; index < kdramasData.length; index++) {
+                const kdrama = kdramasData[index];
+
+                if (kdrama.imageName) {
+                  const imagesInfo = await axios.get(`/api.php?action=query&prop=imageinfo&titles=${encodeURIComponent(kdrama.imageName)}&iiprop=url`);
+
+                  if (imagesInfo.data && imagesInfo.data.query.pages) {
+                    const image = Object.values(imagesInfo.data.query.pages).shift()
+
+                    if (image && image.imageinfo && image.imageinfo.length) {
+                      kdrama['image'] = image.imageinfo[0].url.replace('https://static', 'https://vignette');
+                    }
+                  }
+                }
+              }
 
               resolve(kdramasData);
             } else {
@@ -232,12 +219,35 @@ export const kdramas = {
       });
     },
 
-    async getKramaInfo(id, title) {
+    getImageName(content) {
+      let imageName = content.match(/(Archivo:.*?)\|/);
+      if (!imageName || imageName.length < 2) {
+        imageName = content.match(/(Imagen:.*?)\|/);
+      }
+
+      return imageName && imageName.length > 1 && imageName[1]
+    },
+
+    async getKramaInfo(id, title, season) {
       const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(title)}&rvslots=*&rvprop=content`);
 
       if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {
         const kdramaRevisions = kdramaInfo.data.query.pages[id].revisions;
-        const lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
+        let lastRevision = kdramaRevisions[kdramaRevisions.length - 1].slots.main['*'];
+
+        if (season) {
+          const kdramaContent = lastRevision.split(/==Temporada\s/);
+
+          if (kdramaContent.length > 1) {
+            kdramaContent.forEach(content => {
+              let _season = content.match(/^(\d)==/);
+
+              if (_season && _season.length === 2 && _season[1] === season) {
+                lastRevision = kdramaContent[0] + content;
+              }
+            })
+          }
+        }
 
         let genre = null;
         let genreMatch = lastRevision.match(/(?:Género|Genero).*?\s(.*)\n/m);
@@ -246,7 +256,7 @@ export const kdramas = {
         }
 
         let episodes = null;
-        let episodesMatch = lastRevision.match(/Episodios.*?\s(?:''')?(.*)\n/m);
+        let episodesMatch = lastRevision.match(/Episodios.*?\s?:?(?:''')?(.*)\n/m);
         if (episodesMatch && episodesMatch.length === 2) {
           episodes = episodesMatch[1];
         }
@@ -258,7 +268,7 @@ export const kdramas = {
         }
 
         let synopsis = null;
-        let synopsisMatch = lastRevision.match(/Sinopsis\s*?==\n(.*?)\n==/s);
+        let synopsisMatch = lastRevision.match(/Sinopsis\s*?={2,3}\n(.*?)\n={2,3}/s);
         if (synopsisMatch && synopsisMatch.length === 2) {
           synopsis = '<p>' + synopsisMatch[1]
             .replace(/\n\s*\n/g, '\n')
@@ -267,8 +277,8 @@ export const kdramas = {
         }
 
         let trivia = null;
-        let triviaMatch = lastRevision.match(/Curiosidades\s*?==\n(.*?)\n==/s);
-        if (triviaMatch && triviaMatch.length === 2) {
+        let triviaMatch = lastRevision.match(/Curiosidades\s*?={2,3}\n(.*?)(\n={2,3}|$)/s);
+        if (triviaMatch && triviaMatch.length === 3) {
           trivia = this.getTrivia(triviaMatch[1].replace(/\*([^*])/g, '* $1'));
         }
 
