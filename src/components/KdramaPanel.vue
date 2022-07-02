@@ -275,7 +275,8 @@ export default {
 
       const extraInfo = await this.getKramaInfo(
         this.kdrama.wikiaId,
-        this.kdrama.title
+        this.kdrama.originalTitle || this.kdrama.title,
+        this.kdrama.season
       );
 
       const toUpdate = {
