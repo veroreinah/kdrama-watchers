@@ -1,6 +1,8 @@
 <template>
   <div class="pt-2">
-    <SearchBox />
+    <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
+      <SearchBox />
+    </KdramasFilter>
 
     <v-progress-linear
       v-if="loading"
@@ -9,23 +11,28 @@
     ></v-progress-linear>
 
     <template v-else-if="kdramas && kdramas.length">
-      <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
-        <v-btn
-          v-if="list === 'wishlist'"
-          depressed
-          tile
-          color="secondary"
-          @click="pickOneRandomly"
-        >
-          ¿Cuál veo ahora?
-        </v-btn>
-      </KdramasFilter>
+      <v-btn
+        v-if="list === 'wishlist'"
+        depressed
+        tile
+        small
+        fixed
+        bottom
+        left
+        color="secondary"
+        @click="pickOneRandomly"
+        :style="{ 'z-index': 2 }"
+      >
+        ✨ ¿Cuál veo ahora?
+      </v-btn>
 
-      <v-expansion-panels tile multiple>
-        <v-expansion-panel v-for="drama in filteredKdramas" :key="drama.id">
-          <KdramaPanel :kdrama="drama" @updateList="getData()" />
-        </v-expansion-panel>
-      </v-expansion-panels>
+      <div>
+        <v-expansion-panels tile multiple class="pb-15">
+          <v-expansion-panel v-for="drama in filteredKdramas" :key="drama.id">
+            <KdramaPanel :kdrama="drama" @updateList="getData()" />
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </div>
 
       <KdramaDialog
         :open="open"
