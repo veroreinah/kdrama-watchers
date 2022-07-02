@@ -112,6 +112,8 @@ export default {
   methods: {
     getData() {
       this.loading = true;
+      this.filterGenre = [];
+      this.filterCategories = [];
 
       this.getKdramas(this.user, ["==", this.list], [this.list, "desc"])
         .then((kdramas) => (this.kdramas = kdramas))
