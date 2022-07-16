@@ -2,16 +2,15 @@
   <div class="d-flex align-center mb-2">
     <v-icon left small color="secondary">mdi-calendar-heart</v-icon>
     <span>
-      {{ formatDate(kdrama.dateStart) }}
-      <template v-if="kdrama.dateEnd && kdrama.dateEnd !== kdrama.dateStart">
-        - {{ formatDate(kdrama.dateEnd) }}
+      {{ formatDate(watchDates.dateStart) }}
+      <template
+        v-if="watchDates.dateEnd && watchDates.dateEnd !== watchDates.dateStart"
+      >
+        - {{ formatDate(watchDates.dateEnd) }}
       </template>
     </span>
 
-    <v-dialog
-      v-model="dialog"
-      max-width="500"
-    >
+    <v-dialog v-model="dialog" max-width="500">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           fab
@@ -41,25 +40,14 @@
             ></v-date-picker>
           </div>
 
-          <v-alert
-            v-if="error"
-            text
-            tile
-            type="error"
-          >{{ error }}</v-alert>
+          <v-alert v-if="error" text tile type="error">{{ error }}</v-alert>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            depressed
-            tile
-            @click="dialog = false"
-          >
-            Cancelar
-          </v-btn>
+          <v-btn depressed tile @click="dialog = false"> Cancelar </v-btn>
           <v-btn
             depressed
             tile
@@ -80,9 +68,10 @@ import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
-  name: 'KdramaDates',
+  name: "KdramaDates",
   props: {
     kdrama: { type: Object, required: true },
+    watchDates: { type: Object, required: true },
   },
   data: () => ({
     loading: false,
@@ -90,56 +79,73 @@ export default {
     dialog: false,
     dates: [],
   }),
-  mixins: [
-    kdramas,
-    tools,
-  ],
+  mixins: [kdramas, tools],
   methods: {
     validateDates() {
-      if (Array.isArray(this.dates))
+      if (Array.isArray(this.dates)) {
         return this.dates.length === 2;
-      else
+      } else {
         return this.dates;
+      }
     },
     updateDates() {
       this.loading = true;
 
       if (this.validateDates()) {
         let toSave;
+        let dateStart = null;
+        let dateEnd = null;
 
         if (Array.isArray(this.dates)) {
           if (new Date(this.dates[0]) > new Date(this.dates[1])) {
-            toSave = { ...this.kdrama, dateStart: this.dates[1], dateEnd: this.dates[0] };
+            dateStart = this.dates[1];
+            dateEnd = this.dates[0];
           } else {
-            toSave = { ...this.kdrama, dateStart: this.dates[0], dateEnd: this.dates[1] };
+            dateStart = this.dates[0];
+            dateEnd = this.dates[1];
           }
         } else {
-          toSave = { ...this.kdrama, dateStart: this.dates };
+          dateStart = this.dates;
         }
+
+        toSave = {
+          ...this.kdrama,
+          watchDates: this.kdrama.watchDates.map((watch) => {
+            if (watch.id === this.watchDates.id) {
+              return {
+                ...watch,
+                dateStart,
+                dateEnd,
+              };
+            } else {
+              return watch;
+            }
+          }),
+        };
 
         this.updateKdrama(toSave)
           .then(() => {
-            this.$emit('updateList');
+            this.$emit("updateList");
           })
           .finally(() => {
             this.loading = false;
             this.dialog = false;
           });
       } else {
-        this.error = 'Las fechas no son correctas';
+        this.error = "Las fechas no son correctas";
         this.loading = false;
       }
     },
   },
   created() {
-    if (this.kdrama.dateStart) {
-      if (this.kdrama.dateEnd) {
-        this.dates.push(this.kdrama.dateStart);
-        this.dates.push(this.kdrama.dateEnd);
+    if (this.watchDates.dateStart) {
+      if (this.watchDates.dateEnd) {
+        this.dates.push(this.watchDates.dateStart);
+        this.dates.push(this.watchDates.dateEnd);
       } else {
-        this.dates = this.kdrama.dateStart;
+        this.dates = this.watchDates.dateStart;
       }
     }
   },
-}
+};
 </script>

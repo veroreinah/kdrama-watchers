@@ -67,19 +67,21 @@
               </v-list-item>
             </v-list>
             <v-list v-else dense>
-              <v-list-item v-for="list in availableLists" :key="list.action">
-                <v-list-item-content>
-                  <v-btn
-                    text
-                    small
-                    color="secondary"
-                    @click="triggerAction(list.action, kdrama)"
-                  >
-                    <v-icon left>{{ list.icon }}</v-icon>
-                    {{ list.label }}
-                  </v-btn>
-                </v-list-item-content>
-              </v-list-item>
+              <template v-for="list in availableLists">
+                <v-list-item :key="list.action" v-if="list.route">
+                  <v-list-item-content>
+                    <v-btn
+                      text
+                      small
+                      color="secondary"
+                      @click="triggerAction(list.action, kdrama)"
+                    >
+                      <v-icon left>{{ list.icon }}</v-icon>
+                      {{ list.label }}
+                    </v-btn>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
             </v-list>
           </v-menu>
         </v-card-actions>
@@ -197,8 +199,9 @@ export default {
           list: action,
           rating: null,
           dateAdd: now.toJSON(),
-          dateStart,
-          dateEnd,
+          watchDates: dateStart
+            ? [{ id: 0, dateStart, dateEnd, list: action }]
+            : null,
         };
 
         delete toSave.id;

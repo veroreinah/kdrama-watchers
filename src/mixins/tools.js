@@ -46,6 +46,17 @@ export const tools = {
         value: 3,
         actionInLists: ['wishlist', 'currently-watching'],
       },
+      {
+        route: false,
+        icon: 'mdi-eye-refresh',
+        label: 'Viendo otra vez',
+        action: 're-watching',
+        sortField: 'dateStart',
+        color: 'info',
+        emoji: '🤓',
+        value: 4,
+        actionInLists: ['already-watched', 'abandoned'],
+      },
     ],
   }),
   methods: {

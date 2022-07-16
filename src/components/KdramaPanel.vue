@@ -91,11 +91,15 @@
     </v-expansion-panel-header>
 
     <v-expansion-panel-content class="pt-5">
-      <KdramaDates
-        v-if="kdrama.dateStart"
-        :kdrama="kdrama"
-        @updateList="$emit('updateList')"
-      />
+      <template v-if="kdrama.watchDates && kdrama.watchDates.length">
+        <KdramaDates
+          v-for="dates in kdrama.watchDates"
+          :key="dates.id"
+          :kdrama="kdrama"
+          :watchDates="dates"
+          @updateList="$emit('updateList')"
+        />
+      </template>
 
       <template v-for="item in kdramaData">
         <div v-if="kdrama[item.key]" :key="item.key" class="mb-4">
@@ -222,13 +226,35 @@ export default {
       this.currentAction = list;
       let toSave = { ...this.kdrama, list };
 
-      if (list === "currently-watching") {
+      if (list === "currently-watching" || list === "re-watching") {
+        const current = {
+          id: toSave.watchDates ? toSave.watchDates.length : 0,
+          dateStart: new Date().toISOString().substr(0, 10),
+          list,
+        };
+
         toSave = {
           ...toSave,
-          dateStart: new Date().toISOString().substr(0, 10),
+          list: "currently-watching",
+          watchDates: toSave.watchDates
+            ? [...toSave.watchDates, current]
+            : [current],
         };
       } else if (list === "already-watched" || list === "abandoned") {
-        toSave = { ...toSave, dateEnd: new Date().toISOString().substr(0, 10) };
+        toSave = {
+          ...toSave,
+          watchDates: toSave.watchDates.map((watch) => {
+            if (watch.id === toSave.watchDates.length - 1) {
+              return {
+                ...watch,
+                dateEnd: new Date().toISOString().substr(0, 10),
+                list,
+              };
+            } else {
+              return watch;
+            }
+          }),
+        };
       }
 
       this.updateKdrama(toSave)
