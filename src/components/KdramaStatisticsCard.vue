@@ -17,7 +17,7 @@
       max-width="90%"
       rounded
     >
-      <v-img :src="card.image"></v-img>
+      <v-img :src="card.image" contain></v-img>
     </v-avatar>
 
     <div
@@ -49,7 +49,7 @@
       max-width="90%"
       rounded
     >
-      <v-img :src="card.image"></v-img>
+      <v-img :src="card.image" contain></v-img>
     </v-avatar>
   </div>
 </template>
