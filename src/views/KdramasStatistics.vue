@@ -161,13 +161,16 @@ export default {
           }
 
           kdramas.forEach((kdrama) => {
+            // TODO Check all kdrama watch dates to calculate statistics
             const yearAdded = new Date(kdrama.dateAdd).getFullYear();
-            const yearStarted = kdrama.dateStart
-              ? new Date(kdrama.dateStart).getFullYear()
-              : null;
-            const yearEnded = kdrama.dateEnd
-              ? new Date(kdrama.dateEnd).getFullYear()
-              : null;
+            const yearStarted =
+              kdrama.watchDates && kdrama.watchDates[0].dateStart
+                ? new Date(kdrama.watchDates[0].dateStart).getFullYear()
+                : null;
+            const yearEnded =
+              kdrama.watchDates && kdrama.watchDates[0].dateEnd
+                ? new Date(kdrama.watchDates[0].dateEnd).getFullYear()
+                : null;
 
             const kdramaData = {
               id: kdrama.id,
