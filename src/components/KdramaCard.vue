@@ -37,6 +37,8 @@
               >{{ category }}</v-chip
             >
           </div>
+
+          <slot name="belowTitle"></slot>
         </div>
 
         <v-card-actions v-if="!hideActions">
