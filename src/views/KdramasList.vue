@@ -78,7 +78,7 @@ export default {
   computed: {
     ...mapState(["user"]),
     filteredKdramas() {
-      return this.kdramas.filter((kdrama) => {
+      let kdramas = this.kdramas.filter((kdrama) => {
         const noFilters =
           !this.filterGenre.length && !this.filterCategories.length;
         let resultGenre = [];
@@ -102,6 +102,20 @@ export default {
 
         return resultGenre.length || resultCategories.length;
       });
+
+      const sortField = this.getListProp(this.list, "sortField");
+
+      kdramas = kdramas.sort((a, b) => {
+        if (a[sortField] && b[sortField]) {
+          return new Date(b[sortField]) - new Date(a[sortField]);
+        } else {
+          const dateA = a.watchDates[a.watchDates.length - 1][sortField];
+          const dateB = b.watchDates[b.watchDates.length - 1][sortField];
+          return new Date(dateB) - new Date(dateA);
+        }
+      });
+
+      return kdramas;
     },
   },
   watch: {
@@ -122,7 +136,7 @@ export default {
       this.filterGenre = [];
       this.filterCategories = [];
 
-      this.getKdramas(this.user, ["==", this.list], [this.list, "desc"])
+      this.getKdramas(this.user, ["==", this.list])
         .then((kdramas) => (this.kdramas = kdramas))
         .finally(() => (this.loading = false));
     },
