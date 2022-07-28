@@ -1,6 +1,6 @@
 <template>
   <div class="pt-2">
-    <SearchBox :initial="q" />
+    <SearchBox :initial="q" searchPage />
 
     <div>
       <v-progress-linear

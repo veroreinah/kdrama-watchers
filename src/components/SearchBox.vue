@@ -7,6 +7,8 @@
     autofocus
     autocomplete="off"
     append-icon="mdi-magnify"
+    hide-details="auto"
+    :class="searchPage ? 'mb-2' : 'mr-2'"
     @keypress.enter="search"
     @click:append="search"
   ></v-text-field>
@@ -15,7 +17,10 @@
 <script>
 export default {
   name: "SearchBox",
-  props: ["initial"],
+  props: {
+    initial: { type: String, required: false },
+    searchPage: { type: Boolean, default: false },
+  },
   data: () => ({
     query: "",
   }),

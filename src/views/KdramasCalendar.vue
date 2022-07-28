@@ -170,14 +170,26 @@ export default {
 
       this.getKdramas(this.user, ["!=", "wishlist"])
         .then((kdramas) => {
-          this.kdramas = kdramas.map((kdrama) => ({
-            name: `${this.getListProp(kdrama.list, "emoji")} ${kdrama.title}`,
-            start: new Date(kdrama.dateStart),
-            end: kdrama.dateEnd ? new Date(kdrama.dateEnd) : new Date(),
-            color: this.getListProp(kdrama.list, "color"),
-            timed: false,
-            data: { ...kdrama },
-          }));
+          const _kdramas = [];
+          this.kdramas = kdramas.map((kdrama) => {
+            kdrama.watchDates.forEach((date) => {
+              let emoji = this.getListProp(date.list, "emoji");
+              if (kdrama.watchDates.length > 1 && date.id !== 0) {
+                emoji = `🔄${emoji}`;
+              }
+
+              _kdramas.push({
+                name: `${emoji} ${kdrama.title}`,
+                start: new Date(date.dateStart),
+                end: date.dateEnd ? new Date(date.dateEnd) : new Date(),
+                color: this.getListProp(date.list, "color"),
+                timed: false,
+                data: { ...kdrama },
+              });
+            });
+          });
+
+          this.kdramas = _kdramas;
         })
         .finally(() => (this.loading = false));
     },

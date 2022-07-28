@@ -1,6 +1,8 @@
 <template>
   <div class="pt-2">
-    <SearchBox />
+    <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
+      <SearchBox />
+    </KdramasFilter>
 
     <v-progress-linear
       v-if="loading"
@@ -9,23 +11,28 @@
     ></v-progress-linear>
 
     <template v-else-if="kdramas && kdramas.length">
-      <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
-        <v-btn
-          v-if="list === 'wishlist'"
-          depressed
-          tile
-          color="secondary"
-          @click="pickOneRandomly"
-        >
-          ¿Cuál veo ahora?
-        </v-btn>
-      </KdramasFilter>
+      <v-btn
+        v-if="list === 'wishlist'"
+        depressed
+        tile
+        small
+        fixed
+        bottom
+        left
+        color="secondary"
+        @click="pickOneRandomly"
+        :style="{ 'z-index': 2 }"
+      >
+        ✨ ¿Cuál veo ahora?
+      </v-btn>
 
-      <v-expansion-panels tile multiple>
-        <v-expansion-panel v-for="drama in filteredKdramas" :key="drama.id">
-          <KdramaPanel :kdrama="drama" @updateList="getData()" />
-        </v-expansion-panel>
-      </v-expansion-panels>
+      <div>
+        <v-expansion-panels tile multiple class="pb-15">
+          <v-expansion-panel v-for="drama in filteredKdramas" :key="drama.id">
+            <KdramaPanel :kdrama="drama" @updateList="getData()" />
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </div>
 
       <KdramaDialog
         :open="open"
@@ -71,7 +78,7 @@ export default {
   computed: {
     ...mapState(["user"]),
     filteredKdramas() {
-      return this.kdramas.filter((kdrama) => {
+      let kdramas = this.kdramas.filter((kdrama) => {
         const noFilters =
           !this.filterGenre.length && !this.filterCategories.length;
         let resultGenre = [];
@@ -95,6 +102,20 @@ export default {
 
         return resultGenre.length || resultCategories.length;
       });
+
+      const sortField = this.getListProp(this.list, "sortField");
+
+      kdramas = kdramas.sort((a, b) => {
+        if (a[sortField] && b[sortField]) {
+          return new Date(b[sortField]) - new Date(a[sortField]);
+        } else {
+          const dateA = a.watchDates[a.watchDates.length - 1][sortField];
+          const dateB = b.watchDates[b.watchDates.length - 1][sortField];
+          return new Date(dateB) - new Date(dateA);
+        }
+      });
+
+      return kdramas;
     },
   },
   watch: {
@@ -112,8 +133,10 @@ export default {
   methods: {
     getData() {
       this.loading = true;
+      this.filterGenre = [];
+      this.filterCategories = [];
 
-      this.getKdramas(this.user, ["==", this.list], [this.list, "desc"])
+      this.getKdramas(this.user, ["==", this.list])
         .then((kdramas) => (this.kdramas = kdramas))
         .finally(() => (this.loading = false));
     },

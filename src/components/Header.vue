@@ -39,14 +39,12 @@
 
     <template v-slot:extension v-if="$route.path.includes('lists')">
       <v-tabs show-arrows grow>
-        <v-tab
-          v-for="list in availableLists"
-          :key="list.route"
-          :to="list.route"
-        >
-          <v-icon left>{{ list.icon }}</v-icon>
-          {{ list.label }}
-        </v-tab>
+        <template v-for="list in availableLists">
+          <v-tab v-if="list.route" :key="list.route" :to="list.route">
+            <v-icon left>{{ list.icon }}</v-icon>
+            {{ list.label }}
+          </v-tab>
+        </template>
       </v-tabs>
     </template>
   </v-app-bar>

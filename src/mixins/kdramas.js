@@ -10,29 +10,16 @@ export const kdramas = {
   methods: {
     ...mapActions(["setSnackbar"]),
 
-    getKdramas(user, list, orderBy) {
+    getKdramas(user, list) {
       return new Promise((resolve, reject) => {
         let kdramasCollection;
         if (list) {
-          if (orderBy) {
-            kdramasCollection = this.db.collection('kdramas')
-              .where("user", "==", user.uid)
-              .where("list", list[0], list[1])
-              .orderBy(this.getListProp(orderBy[0], 'sortField'), orderBy[1])
-          } else {
-            kdramasCollection = this.db.collection('kdramas')
-              .where("user", "==", user.uid)
-              .where("list", list[0], list[1]);
-          }
+          kdramasCollection = this.db.collection('kdramas')
+            .where("user", "==", user.uid)
+            .where("list", list[0], list[1]);
         } else {
-          if (orderBy) {
-            kdramasCollection = this.db.collection('kdramas')
-              .where("user", "==", user.uid)
-              .orderBy(this.getListProp(orderBy[0], 'sortField'), orderBy[1])
-          } else {
-            kdramasCollection = this.db.collection('kdramas')
-              .where("user", "==", user.uid);
-          }
+          kdramasCollection = this.db.collection('kdramas')
+            .where("user", "==", user.uid);
         }
 
         kdramasCollection.get()

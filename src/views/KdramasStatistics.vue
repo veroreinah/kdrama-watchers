@@ -99,8 +99,8 @@ export default {
         newCard.highlighted =
           newCard.type === "year"
             ? this.selectedYear
-            : Array.isArray(data)
-            ? data.length
+            : Array.isArray(data) || newCard.subtype === "list"
+            ? data?.length || 0
             : data;
         newCard.emoji = this.cardsEmoji[newCard.type];
 
@@ -162,12 +162,6 @@ export default {
 
           kdramas.forEach((kdrama) => {
             const yearAdded = new Date(kdrama.dateAdd).getFullYear();
-            const yearStarted = kdrama.dateStart
-              ? new Date(kdrama.dateStart).getFullYear()
-              : null;
-            const yearEnded = kdrama.dateEnd
-              ? new Date(kdrama.dateEnd).getFullYear()
-              : null;
 
             const kdramaData = {
               id: kdrama.id,
@@ -178,8 +172,17 @@ export default {
               genre: kdrama.genre,
               rating: kdrama.rating,
               yearAdded,
-              yearStarted,
-              yearEnded,
+              dates: kdrama.watchDates
+                ? kdrama.watchDates.map((dates) => ({
+                    ...dates,
+                    yearStarted: dates.dateStart
+                      ? new Date(dates.dateStart).getFullYear()
+                      : null,
+                    yearEnded: dates.dateEnd
+                      ? new Date(dates.dateEnd).getFullYear()
+                      : null,
+                  }))
+                : null,
             };
 
             this.setYearData(kdramaData);

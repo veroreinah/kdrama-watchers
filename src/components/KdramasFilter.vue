@@ -1,8 +1,8 @@
 <template>
-  <div class="mb-1">
-    <div class="d-flex">
+  <div class="mb-2">
+    <div class="d-flex align-center">
       <slot name="default"></slot>
-      <v-spacer></v-spacer>
+
       <v-btn
         v-if="genre.length || categories.length"
         icon
