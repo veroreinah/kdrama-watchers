@@ -36,16 +36,16 @@ export const statistics = {
       return [
         { type: "year", background: this.images[0] },
         { type: "sortedRating", color: "accent" },
-        { type: "already-watched", color: "secondary" },
+        { type: "already-watched", subtype: "list", color: "secondary" },
         { type: "bestRate", background: this.images[1] },
         { type: "sortedRating", color: "primary" },
         { type: "sortedRating", background: cardBg7 },
         { type: "sortedRating", color: "info", column: true },
         { type: "sortedRating", color: "accent" },
         { type: "sortedRating", color: "primary" },
-        { type: "added", color: "secondary" },
-        { type: "started", background: this.images[2] },
-        { type: "abandoned", color: "accent" },
+        { type: "added", subtype: "list", color: "secondary" },
+        { type: "started", subtype: "list", background: this.images[2] },
+        { type: "abandoned", subtype: "list", color: "accent" },
       ]
     }
   },
@@ -81,11 +81,17 @@ export const statistics = {
     },
 
     setYearData(kdrama) {
-      const { yearAdded, yearStarted, yearEnded, list } = kdrama;
+      const { yearAdded, dates } = kdrama;
 
       yearAdded && this.addYear(yearAdded, "added", kdrama);
-      yearStarted && this.addYear(yearStarted, "started", kdrama);
-      yearEnded && this.addYear(yearEnded, list, kdrama);
+      if (dates) {
+        dates.forEach(d => {
+          const { yearStarted, yearEnded, list } = d;
+
+          yearStarted && this.addYear(yearStarted, "started", kdrama);
+          yearEnded && this.addYear(yearEnded, list, kdrama);
+        })
+      }
     },
 
     addYear(year, list, kdrama) {
@@ -121,6 +127,16 @@ export const statistics = {
         ].filter((kdrama) => kdrama.rating !== null);
 
         if (yearWatchedKdramas.length) {
+          yearWatchedKdramas.sort((a, b) => {
+            const dateWatchedA = a.dates ? a.dates.find(dates => dates.yearEnded === year) : null;
+            const dateWatchedB = b.dates ? b.dates.find(dates => dates.yearEnded === year) : null;
+
+            if (dateWatchedA && dateWatchedB) {
+              return new Date(dateWatchedB.dateEnd) - new Date(dateWatchedA.dateEnd);
+            }
+            return 0;
+          });
+
           yearWatchedKdramas.sort((a, b) => b.rating - a.rating);
           const bestRate = yearWatchedKdramas[0].rating;
 
