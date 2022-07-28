@@ -273,17 +273,26 @@ export default {
       } else if (list === "already-watched" || list === "abandoned") {
         toSave = {
           ...toSave,
-          watchDates: toSave.watchDates.map((watch) => {
-            if (watch.id === toSave.watchDates.length - 1) {
-              return {
-                ...watch,
-                dateEnd: new Date().toISOString().substr(0, 10),
-                list,
-              };
-            } else {
-              return watch;
-            }
-          }),
+          watchDates: toSave.watchDates
+            ? toSave.watchDates.map((watch) => {
+                if (watch.id === toSave.watchDates.length - 1) {
+                  return {
+                    ...watch,
+                    dateEnd: new Date().toISOString().substr(0, 10),
+                    list,
+                  };
+                } else {
+                  return watch;
+                }
+              })
+            : [
+                {
+                  id: 0,
+                  dateStart: new Date().toISOString().substr(0, 10),
+                  dateEnd: new Date().toISOString().substr(0, 10),
+                  list,
+                },
+              ],
         };
       }
 
