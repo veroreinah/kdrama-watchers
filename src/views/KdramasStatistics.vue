@@ -85,7 +85,11 @@ export default {
       return years;
     },
     cards() {
-      const sorted = [...this.data[this.selectedYear].sortedRating] || [];
+      const sorted =
+        (this.data[this.selectedYear]?.sortedRating && [
+          ...this.data[this.selectedYear].sortedRating,
+        ]) ||
+        [];
       const bestRate = this.data[this.selectedYear].bestRate;
 
       const cols = this.getCols(sorted.length);
@@ -111,6 +115,10 @@ export default {
         }
 
         if (newCard.type === "sortedRating" && !kdrama) {
+          newCard.toRemove = true;
+        }
+
+        if (newCard.type === "bestRate" && bestRate === undefined) {
           newCard.toRemove = true;
         }
 
