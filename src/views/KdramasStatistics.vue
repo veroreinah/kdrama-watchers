@@ -36,8 +36,12 @@
         <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.cols">
           <v-card height="100%" :color="card.color" dark>
             <v-img
-              v-if="card.background"
-              :src="card.background"
+              v-if="'background' in card"
+              :src="
+                typeof card.background === 'number'
+                  ? bgImages[card.background]
+                  : card.background
+              "
               gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
               :height="getHeight(card)"
               minHeight="100%"
@@ -68,6 +72,13 @@ import { tools } from "@/mixins/tools";
 import { statistics } from "@/mixins/statistics";
 import KdramaStatisticsCard from "@/components/KdramaStatisticsCard";
 
+import cardBg1 from "@/assets/img/card-bg-1.jpg";
+import cardBg2 from "@/assets/img/card-bg-2.jpg";
+import cardBg3 from "@/assets/img/card-bg-3.jpg";
+import cardBg4 from "@/assets/img/card-bg-4.jpg";
+import cardBg5 from "@/assets/img/card-bg-5.jpg";
+import cardBg6 from "@/assets/img/card-bg-6.jpg";
+
 export default {
   name: "KdramasStatistics",
   data: () => ({
@@ -75,6 +86,7 @@ export default {
     years: [],
     data: undefined,
     selectedYear: undefined,
+    bgImages: [cardBg1, cardBg2, cardBg3, cardBg4, cardBg5, cardBg6],
   }),
   computed: {
     ...mapState(["user"]),
@@ -135,6 +147,12 @@ export default {
       if (value && value.length) {
         this.selectedYear = this.sortedYears[this.sortedYears.length - 1];
       }
+    },
+    selectedYear() {
+      const images = [cardBg1, cardBg2, cardBg3, cardBg4, cardBg5, cardBg6];
+      images.sort(() => Math.random() - 0.5);
+
+      this.bgImages = [...images];
     },
   },
   components: {
