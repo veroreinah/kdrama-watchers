@@ -369,6 +369,10 @@ export default {
 
 <style lang="scss" scoped>
 .v-expansion-panel-header {
+  &:focus::before {
+    opacity: 0 !important;
+  }
+
   .v-card {
     border: none;
   }

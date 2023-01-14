@@ -145,10 +145,9 @@ export default {
       this.filterCategories = filters.categories;
     },
     pickOneRandomly() {
-      this.randomKdrama =
-        this.filteredKdramas[
-          Math.floor(Math.random() * this.filteredKdramas.length)
-        ];
+      this.randomKdrama = this.filteredKdramas[
+        Math.floor(Math.random() * this.filteredKdramas.length)
+      ];
       this.open = true;
     },
     closeDialog() {
