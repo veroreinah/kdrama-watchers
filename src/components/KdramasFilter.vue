@@ -25,6 +25,24 @@
       accordion
     >
       <v-expansion-panel>
+        <v-expansion-panel-header class="pa-0">
+          {{ getListProp(list, "year") }}
+        </v-expansion-panel-header>
+        <v-expansion-panel-content class="pa-0">
+          <v-chip-group v-model="years" column multiple>
+            <v-chip
+              filter
+              color="accent"
+              v-for="filter in yearsFilters"
+              :key="filter"
+            >
+              {{ filter }}
+            </v-chip>
+          </v-chip-group>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+
+      <v-expansion-panel>
         <v-expansion-panel-header class="pa-0">Género</v-expansion-panel-header>
         <v-expansion-panel-content class="pa-0">
           <v-chip-group v-model="genre" column multiple>
@@ -62,16 +80,20 @@
 </template>
 
 <script>
+import { tools } from "@/mixins/tools";
+
 export default {
   name: "KdramasFilter",
   props: {
     kdramas: { type: Array, required: true },
+    list: { type: String, required: true },
   },
   data: () => ({
     showFilters: false,
     panel: [0],
     genre: [],
     categories: [],
+    years: [],
   }),
   computed: {
     genreFilters() {
@@ -103,6 +125,25 @@ export default {
           !genreLower.includes(value.toLowerCase())
       );
     },
+    yearsFilters() {
+      let result = [];
+      this.kdramas.forEach((kdrama) => {
+        const sortField = this.getListProp(this.list, "sortField");
+
+        if (kdrama[sortField]) {
+          const year = new Date(kdrama[sortField]).getFullYear();
+          result.push(year);
+        } else {
+          const years = kdrama.watchDates.map((date) =>
+            new Date(date[sortField]).getFullYear()
+          );
+          result = [...result, ...years];
+        }
+      });
+      result.sort();
+
+      return result.filter((value, index) => result.indexOf(value) === index);
+    },
   },
   watch: {
     genre() {
@@ -111,7 +152,11 @@ export default {
     categories() {
       this.filterChange();
     },
+    years() {
+      this.filterChange();
+    },
   },
+  mixins: [tools],
   methods: {
     toggleFilters() {
       this.showFilters = !this.showFilters;
@@ -126,6 +171,7 @@ export default {
         categories: this.categories.map(
           (value) => this.categoriesFilters[value]
         ),
+        years: this.years.map((value) => this.yearsFilters[value]),
       };
       this.$emit("filterChange", data);
     },
