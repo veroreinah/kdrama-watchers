@@ -36,9 +36,17 @@
         <v-col v-for="(card, idx) in cards" :key="idx" :cols="card.cols">
           <v-card height="100%" :color="card.color" dark>
             <v-img
-              v-if="card.background"
-              :src="card.background"
-              gradient="to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)"
+              v-if="'background' in card"
+              :src="
+                typeof card.background === 'number'
+                  ? bgImages[card.background]
+                  : card.background
+              "
+              :gradient="
+                card.data
+                  ? 'to top right, rgba(100,115,201,.8), rgba(25,32,72,.8)'
+                  : 'to top right, rgba(100,115,201,.6), rgba(25,32,72,.6)'
+              "
               :height="getHeight(card)"
               minHeight="100%"
             >
@@ -68,6 +76,13 @@ import { tools } from "@/mixins/tools";
 import { statistics } from "@/mixins/statistics";
 import KdramaStatisticsCard from "@/components/KdramaStatisticsCard";
 
+import cardBg1 from "@/assets/img/card-bg-1.jpg";
+import cardBg2 from "@/assets/img/card-bg-2.jpg";
+import cardBg3 from "@/assets/img/card-bg-3.jpg";
+import cardBg4 from "@/assets/img/card-bg-4.jpg";
+import cardBg5 from "@/assets/img/card-bg-5.jpg";
+import cardBg6 from "@/assets/img/card-bg-6.jpg";
+
 export default {
   name: "KdramasStatistics",
   data: () => ({
@@ -75,6 +90,7 @@ export default {
     years: [],
     data: undefined,
     selectedYear: undefined,
+    bgImages: [cardBg1, cardBg2, cardBg3, cardBg4, cardBg5, cardBg6],
   }),
   computed: {
     ...mapState(["user"]),
@@ -122,6 +138,25 @@ export default {
           newCard.toRemove = true;
         }
 
+        if (newCard.type === "already-watched" && newCard.subtype === "all") {
+          if (Array.isArray(data) && data.length) {
+            newCard.highlighted = `${newCard.text} ${this.selectedYear}`;
+            newCard.text = undefined;
+            newCard.emoji = undefined;
+            newCard.data = data
+              .sort((a, b) => {
+                return b.rating - a.rating;
+              })
+              .map((kdrama) => ({
+                id: kdrama.id,
+                title: kdrama.title,
+                rating: this.getkdramaRating(kdrama.rating / 2),
+              }));
+          } else {
+            newCard.toRemove = true;
+          }
+        }
+
         return newCard;
       });
 
@@ -135,6 +170,12 @@ export default {
       if (value && value.length) {
         this.selectedYear = this.sortedYears[this.sortedYears.length - 1];
       }
+    },
+    selectedYear() {
+      const images = [cardBg1, cardBg2, cardBg3, cardBg4, cardBg5, cardBg6];
+      images.sort(() => Math.random() - 0.5);
+
+      this.bgImages = [...images];
     },
   },
   components: {
@@ -153,6 +194,10 @@ export default {
       this.selectedYear = this.sortedYears[currentIndex + 1];
     },
     getHeight(card) {
+      if (card.subtype === "all") {
+        return "auto";
+      }
+
       if (this.$vuetify.breakpoint.name === "xs") {
         return card.image && card.cols !== 12 ? "auto" : 200;
       }
@@ -200,9 +245,42 @@ export default {
         })
         .finally(() => (this.loading = false));
     },
+    getkdramaRating(rating) {
+      const result = [];
+      for (let index = 0; index < 5; index++) {
+        let icon = "mdi-star";
+        let color = "warning";
+        if (rating < index + 1) {
+          if (rating > index) {
+            icon = "mdi-star-half-full";
+          } else {
+            icon = "mdi-star-outline";
+            color = "#bdbdbd";
+          }
+        }
+
+        result.push({ icon, color });
+      }
+
+      return result;
+    },
   },
   created() {
     this.getData();
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.v-image {
+  ::v-deep {
+    .v-responsive__sizer {
+      padding-bottom: 0 !important;
+    }
+
+    .theme--dark.v-list {
+      background: none;
+    }
+  }
+}
+</style>

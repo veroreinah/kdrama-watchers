@@ -7,6 +7,7 @@
         :width="small ? 70 : 140"
         :max-width="small ? 70 : 140"
         gradient="to bottom, rgba(100,115,201,.1), rgba(25,32,72,.5)"
+        v-on:click.stop="kdrama.image && open(kdrama.image)"
       />
 
       <div class="flex-grow-1 d-flex flex-column justify-space-between">
@@ -129,7 +130,7 @@ export default {
   },
   mixins: [kdramas, tools],
   methods: {
-    ...mapActions(["setPendingAction"]),
+    ...mapActions(["setPendingAction", "setImage"]),
     toUpdate() {
       return (
         this.idsToUpdate &&
@@ -215,6 +216,9 @@ export default {
           })
           .finally(() => (this.loading = false));
       }
+    },
+    open(image) {
+      this.setImage(image);
     },
   },
 };

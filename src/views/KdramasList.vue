@@ -1,6 +1,6 @@
 <template>
   <div class="pt-2">
-    <KdramasFilter :kdramas="kdramas" @filterChange="filterChange">
+    <KdramasFilter :kdramas="kdramas" :list="list" @filterChange="filterChange">
       <SearchBox />
     </KdramasFilter>
 
@@ -74,6 +74,7 @@ export default {
     open: false,
     filterGenre: [],
     filterCategories: [],
+    filterYears: [],
   }),
   computed: {
     ...mapState(["user"]),
@@ -115,6 +116,21 @@ export default {
         }
       });
 
+      if (this.filterYears.length) {
+        kdramas = kdramas.filter((kdrama) => {
+          if (kdrama[sortField]) {
+            const kdramaYear = new Date(kdrama[sortField]).getFullYear();
+            return this.filterYears.includes(kdramaYear);
+          } else {
+            const years = kdrama.watchDates.map((date) =>
+              new Date(date[sortField]).getFullYear()
+            );
+
+            return years.some((year) => this.filterYears.includes(year));
+          }
+        });
+      }
+
       return kdramas;
     },
   },
@@ -135,6 +151,7 @@ export default {
       this.loading = true;
       this.filterGenre = [];
       this.filterCategories = [];
+      this.filterYears = [];
 
       this.getKdramas(this.user, ["==", this.list])
         .then((kdramas) => (this.kdramas = kdramas))
@@ -143,12 +160,12 @@ export default {
     filterChange(filters) {
       this.filterGenre = filters.genre;
       this.filterCategories = filters.categories;
+      this.filterYears = filters.years;
     },
     pickOneRandomly() {
-      this.randomKdrama =
-        this.filteredKdramas[
-          Math.floor(Math.random() * this.filteredKdramas.length)
-        ];
+      this.randomKdrama = this.filteredKdramas[
+        Math.floor(Math.random() * this.filteredKdramas.length)
+      ];
       this.open = true;
     },
     closeDialog() {
