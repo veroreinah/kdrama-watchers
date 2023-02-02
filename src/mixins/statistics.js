@@ -33,6 +33,7 @@ export const statistics = {
         { type: "added", subtype: "list", color: "secondary" },
         { type: "started", subtype: "list", background: 2 },
         { type: "abandoned", subtype: "list", color: "accent" },
+        { type: "already-watched", subtype: "all", background: 3 },
       ];
     },
   },
