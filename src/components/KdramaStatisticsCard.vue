@@ -6,6 +6,7 @@
       'justify-center': !card.image,
       'flex-column':
         ($vuetify.breakpoint.name === 'xs' && card.cols !== 12) || card.column,
+      'pb-6': card.data,
     }"
     style="height: 100%"
   >
@@ -39,6 +40,26 @@
       <v-card-text v-if="card.emoji" class="text-center">
         {{ card.emoji }}
       </v-card-text>
+
+      <v-list v-if="card.data">
+        <v-list-item v-for="kdrama in card.data" :key="kdrama.id">
+          <v-list-item-content>
+            <v-list-item-title v-text="kdrama.title"></v-list-item-title>
+          </v-list-item-content>
+
+          <v-list-item-action>
+            <div class="text-no-wrap">
+              <v-icon
+                v-for="(star, key) in kdrama.rating"
+                :key="key"
+                :color="star.color"
+              >
+                {{ star.icon }}
+              </v-icon>
+            </div>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
     </div>
 
     <v-avatar
@@ -72,4 +93,3 @@ export default {
   },
 };
 </script>
-
