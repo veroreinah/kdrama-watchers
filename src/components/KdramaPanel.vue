@@ -338,7 +338,7 @@ export default {
       this.loading = true;
       this.currentAction = "update";
 
-      const extraInfo = await this.getKramaInfo(
+      const extraInfo = await this.getKdramaInfo(
         this.kdrama.wikiaId,
         this.kdrama.originalTitle || this.kdrama.title,
         this.kdrama.season

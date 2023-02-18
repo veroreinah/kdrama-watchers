@@ -109,7 +109,7 @@ export default {
       kdramas = kdramas.sort((a, b) => {
         if (a[sortField] && b[sortField]) {
           return new Date(b[sortField]) - new Date(a[sortField]);
-        } else {
+        } else if (a.watchDates && b.watchDates) {
           const dateA = a.watchDates[a.watchDates.length - 1][sortField];
           const dateB = b.watchDates[b.watchDates.length - 1][sortField];
           return new Date(dateB) - new Date(dateA);
