@@ -215,7 +215,7 @@ export const kdramas = {
       return imageName && imageName.length > 1 && imageName[1]
     },
 
-    async getKramaInfo(id, title, season) {
+    async getKdramaInfo(id, title, season) {
       const kdramaInfo = await axios.get(`/api.php?action=query&prop=revisions&titles=${encodeURIComponent(title)}&rvslots=*&rvprop=content`);
 
       if (kdramaInfo.data && kdramaInfo.data.query && kdramaInfo.data.query.pages && kdramaInfo.data.query.pages[id]) {

@@ -149,7 +149,7 @@ export default {
           kdrama.wikiaId === this.kdrama.id ||
           kdrama.wikiaId === this.kdrama.originalId
       );
-      const extraInfo = await this.getKramaInfo(
+      const extraInfo = await this.getKdramaInfo(
         this.kdrama.originalId || this.kdrama.id,
         this.kdrama.originalTitle || this.kdrama.title,
         this.kdrama.season
@@ -178,7 +178,7 @@ export default {
         this.setPendingAction({ action, kdrama });
         this.$router.push({ name: "Login" });
       } else {
-        const extraInfo = await this.getKramaInfo(
+        const extraInfo = await this.getKdramaInfo(
           kdrama.originalId || kdrama.id,
           kdrama.originalTitle || kdrama.title,
           this.kdrama.season
