@@ -1,24 +1,20 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    max-width="500"
-    @click:outside="$emit('close')"
-  >
+  <v-dialog v-model="dialog" max-width="500" @click:outside="$emit('close')">
     <v-card>
       <v-card-text v-if="kdrama" class="pa-0">
         <KdramaCard :kdrama="kdrama" hide-actions />
-        <div v-if="kdrama.synopsis" v-html="getFormattedText(kdrama.synopsis)" class="px-4 py-2"></div>
+        <div
+          v-if="kdrama.synopsis"
+          v-html="getFormattedText(kdrama.synopsis)"
+          class="px-4 py-2"
+        ></div>
       </v-card-text>
 
       <v-divider></v-divider>
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn
-          depressed
-          tile
-          @click="$emit('close')"
-        >
+        <v-btn depressed tile @click="$emit('close')">
           Cancelar
         </v-btn>
         <v-btn
@@ -36,12 +32,12 @@
 </template>
 
 <script>
-import KdramaCard from '@/components/KdramaCard';
+import KdramaCard from "@/components/KdramaCard";
 import { kdramas } from "@/mixins/kdramas";
 import { tools } from "@/mixins/tools";
 
 export default {
-  name: 'KdramaDialog',
+  name: "KdramaDialog",
   props: {
     open: { type: Boolean, default: false },
     kdrama: { type: Object },
@@ -58,27 +54,28 @@ export default {
   components: {
     KdramaCard,
   },
-  mixins: [
-    kdramas,
-    tools,
-  ],
+  mixins: [kdramas, tools],
   methods: {
     moveKdrama() {
       this.loading = true;
-      const list = 'currently-watching';
-      let toSave = { ...this.kdrama, list, dateStart: (new Date()).toISOString().substr(0, 10) };
+      const list = "currently-watching";
+      let toSave = {
+        ...this.kdrama,
+        list,
+        dateStart: new Date().toISOString().substr(0, 10),
+      };
 
       this.updateKdrama(toSave)
         .then(() => {
-          this.$emit('updateList');
+          this.$emit("updateList");
         })
         .finally(() => {
           this.loading = false;
-          this.$emit('close');
+          this.$emit("close");
         });
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
