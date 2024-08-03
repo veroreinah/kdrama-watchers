@@ -71,7 +71,13 @@
             </v-list>
             <v-list v-else dense>
               <template v-for="list in availableLists">
-                <v-list-item :key="list.action" v-if="list.route">
+                <v-list-item
+                  :key="list.action"
+                  v-if="
+                    list.route &&
+                      (!kdrama.isMovie || list.action !== 'currently-watching')
+                  "
+                >
                   <v-list-item-content>
                     <v-btn
                       text

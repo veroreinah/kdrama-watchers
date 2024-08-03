@@ -6,6 +6,7 @@ import "firebase/firestore";
 export const kdramas = {
   data: () => ({
     db: undefined,
+    allowedContent: ["kdrama", "kpelícula"],
   }),
   methods: {
     ...mapActions(["setSnackbar"]),
@@ -216,13 +217,22 @@ export const kdramas = {
                 });
               }
 
-              const kdramasData = data.filter(
-                (kdrama) =>
-                  kdrama.categories &&
-                  kdrama.categories.some(
-                    (category) => category.toLowerCase() === "kdrama"
-                  )
-              );
+              const kdramasData = data
+                .filter(
+                  (kdrama) =>
+                    kdrama.categories &&
+                    kdrama.categories.some((category) =>
+                      this.allowedContent.includes(category.toLowerCase())
+                    )
+                )
+                .map((kdrama) => ({
+                  ...kdrama,
+                  isMovie:
+                    kdrama.categories &&
+                    kdrama.categories.some(
+                      (category) => category.toLowerCase() === "kpelícula"
+                    ),
+                }));
 
               for (let index = 0; index < kdramasData.length; index++) {
                 const kdrama = kdramasData[index];
@@ -327,6 +337,14 @@ export const kdramas = {
           broadcastDate = broadcastDateMatch[1];
         }
 
+        let releaseDate = null;
+        let releaseDateMatch = lastRevision.match(
+          /Fecha de estreno.*?\s(?:''')?(.*)\n/m
+        );
+        if (releaseDateMatch && releaseDateMatch.length === 2) {
+          releaseDate = releaseDateMatch[1];
+        }
+
         let synopsis = null;
         let synopsisMatch = lastRevision.match(
           /Sinopsis\s*?={2,3}\n(.*?)\n={2,3}/s
@@ -350,12 +368,15 @@ export const kdramas = {
         }
 
         let broadcasting = !!lastRevision.match(/\{\{En emisión}}/s);
-        let comingSoon = !!lastRevision.match(/\{\{Próximos Dramas}}/s);
+        let comingSoon =
+          !!lastRevision.match(/\{\{Próximos Dramas}}/s) ||
+          !!lastRevision.match(/\{\{Próximas Películas}}/s);
 
         return {
           genre,
           episodes,
           broadcastDate,
+          releaseDate,
           synopsis,
           trivia,
           broadcasting,

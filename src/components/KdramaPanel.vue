@@ -195,6 +195,10 @@ export default {
         key: "broadcastDate",
       },
       {
+        label: "Estreno",
+        key: "releaseDate",
+      },
+      {
         label: "Sinopsis",
         key: "synopsis",
       },
@@ -208,7 +212,8 @@ export default {
         return (
           list.actionInLists &&
           list.actionInLists.includes(this.kdrama.list) &&
-          !this.kdrama.comingSoon
+          !this.kdrama.comingSoon &&
+          (!this.kdrama.isMovie || list.action !== "currently-watching")
         );
       });
     },
