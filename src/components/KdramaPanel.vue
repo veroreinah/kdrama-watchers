@@ -268,13 +268,25 @@ export default {
           list,
         };
 
-        toSave = {
-          ...toSave,
-          list: "currently-watching",
-          watchDates: toSave.watchDates
-            ? [...toSave.watchDates, current]
-            : [current],
-        };
+        if (this.kdrama.isMovie) {
+          current.dateEnd = current.dateStart;
+
+          toSave = {
+            ...toSave,
+            list: "already-watched",
+            watchDates: toSave.watchDates
+              ? [...toSave.watchDates, current]
+              : [current],
+          };
+        } else {
+          toSave = {
+            ...toSave,
+            list: "currently-watching",
+            watchDates: toSave.watchDates
+              ? [...toSave.watchDates, current]
+              : [current],
+          };
+        }
       } else if (list === "already-watched" || list === "abandoned") {
         toSave = {
           ...toSave,

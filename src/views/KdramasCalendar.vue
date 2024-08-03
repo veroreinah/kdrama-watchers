@@ -173,7 +173,9 @@ export default {
           const _kdramas = [];
           this.kdramas = kdramas.map((kdrama) => {
             kdrama.watchDates.forEach((date) => {
-              let emoji = this.getListProp(date.list, "emoji");
+              let emoji = kdrama.isMovie
+                ? "🍿"
+                : this.getListProp(date.list, "emoji");
               if (kdrama.watchDates.length > 1 && date.id !== 0) {
                 emoji = `🔄${emoji}`;
               }

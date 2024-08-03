@@ -83,7 +83,7 @@ export default {
   methods: {
     validateDates() {
       if (Array.isArray(this.dates)) {
-        return this.dates.length === 2;
+        return this.kdrama.isMovie || this.dates.length === 2;
       } else {
         return this.dates;
       }
@@ -97,15 +97,24 @@ export default {
         let dateEnd = null;
 
         if (Array.isArray(this.dates)) {
-          if (new Date(this.dates[0]) > new Date(this.dates[1])) {
-            dateStart = this.dates[1];
+          if (this.kdrama.isMovie) {
+            dateStart = this.dates[0];
             dateEnd = this.dates[0];
           } else {
-            dateStart = this.dates[0];
-            dateEnd = this.dates[1];
+            if (new Date(this.dates[0]) > new Date(this.dates[1])) {
+              dateStart = this.dates[1];
+              dateEnd = this.dates[0];
+            } else {
+              dateStart = this.dates[0];
+              dateEnd = this.dates[1];
+            }
           }
         } else {
           dateStart = this.dates;
+
+          if (this.kdrama.isMovie) {
+            dateEnd = this.dates;
+          }
         }
 
         toSave = {
