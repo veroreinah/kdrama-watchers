@@ -267,6 +267,9 @@ export const kdramas = {
       if (!imageName || imageName.length < 2) {
         imageName = content.match(/(Imagen:.*?)\|/);
       }
+      if (!imageName || imageName.length < 2) {
+        imageName = content.match(/(File:.*?)\|/);
+      }
 
       return imageName && imageName.length > 1 && imageName[1];
     },
