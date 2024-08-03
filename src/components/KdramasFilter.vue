@@ -155,6 +155,10 @@ export default {
     },
   },
   watch: {
+    list() {
+      this.showFilters = false;
+      this.reset();
+    },
     genre() {
       this.filterChange();
     },
@@ -173,6 +177,7 @@ export default {
     reset() {
       this.genre = [];
       this.categories = [];
+      this.years = [];
     },
     filterChange() {
       const data = {
