@@ -264,7 +264,7 @@ export default {
       if (list === "currently-watching" || list === "re-watching") {
         const current = {
           id: toSave.watchDates ? toSave.watchDates.length : 0,
-          dateStart: new Date().toISOString().substr(0, 10),
+          dateStart: new Date().toISOString().substring(0, 10),
           list,
         };
 
@@ -283,7 +283,7 @@ export default {
                 if (watch.id === toSave.watchDates.length - 1) {
                   return {
                     ...watch,
-                    dateEnd: new Date().toISOString().substr(0, 10),
+                    dateEnd: new Date().toISOString().substring(0, 10),
                     list,
                   };
                 } else {
@@ -293,8 +293,8 @@ export default {
             : [
                 {
                   id: 0,
-                  dateStart: new Date().toISOString().substr(0, 10),
-                  dateEnd: new Date().toISOString().substr(0, 10),
+                  dateStart: new Date().toISOString().substring(0, 10),
+                  dateEnd: new Date().toISOString().substring(0, 10),
                   list,
                 },
               ],

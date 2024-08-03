@@ -62,7 +62,7 @@ export default {
       let toSave = {
         ...this.kdrama,
         list,
-        dateStart: new Date().toISOString().substr(0, 10),
+        dateStart: new Date().toISOString().substring(0, 10),
       };
 
       this.updateKdrama(toSave)
