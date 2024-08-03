@@ -8,7 +8,7 @@
     autocomplete="off"
     append-icon="mdi-magnify"
     hide-details="auto"
-    :class="searchPage ? 'mb-2' : 'mr-2'"
+    :class="searchPage ? 'mb-2' : ''"
     @keypress.enter="search"
     @click:append="search"
   ></v-text-field>

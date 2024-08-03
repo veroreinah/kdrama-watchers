@@ -4,14 +4,23 @@
       <slot name="default"></slot>
 
       <v-btn
-        v-if="genre.length || categories.length"
+        v-if="genre.length || categories.length || years.length"
         icon
         color="accent"
+        class="ml-2"
         @click="reset"
       >
         <v-icon>mdi-close</v-icon>
       </v-btn>
-      <v-btn icon color="accent" @click="toggleFilters">
+      <v-btn
+        v-if="
+          genreFilters.length || categoriesFilters.length || yearsFilters.length
+        "
+        icon
+        color="accent"
+        class="ml-2"
+        @click="toggleFilters"
+      >
         <v-icon>mdi-tune</v-icon>
       </v-btn>
     </div>
@@ -24,7 +33,7 @@
       multiple
       accordion
     >
-      <v-expansion-panel>
+      <v-expansion-panel v-if="yearsFilters.length">
         <v-expansion-panel-header class="pa-0">
           {{ getListProp(list, "year") }}
         </v-expansion-panel-header>
@@ -42,7 +51,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
 
-      <v-expansion-panel>
+      <v-expansion-panel v-if="genreFilters.length">
         <v-expansion-panel-header class="pa-0">Género</v-expansion-panel-header>
         <v-expansion-panel-content class="pa-0">
           <v-chip-group v-model="genre" column multiple>
@@ -58,7 +67,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
 
-      <v-expansion-panel>
+      <v-expansion-panel v-if="categoriesFilters.length">
         <v-expansion-panel-header class="pa-0"
           >Categorías</v-expansion-panel-header
         >
