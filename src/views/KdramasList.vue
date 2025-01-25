@@ -163,9 +163,14 @@ export default {
       this.filterYears = filters.years;
     },
     pickOneRandomly() {
-      this.randomKdrama = this.filteredKdramas[
-        Math.floor(Math.random() * this.filteredKdramas.length)
-      ];
+      const notComingSoonKdramas = this.filteredKdramas.filter(
+        (k) => !k.comingSoon
+      );
+
+      this.randomKdrama =
+        notComingSoonKdramas[
+          Math.floor(Math.random() * notComingSoonKdramas.length)
+        ];
       this.open = true;
     },
     closeDialog() {
