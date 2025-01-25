@@ -15,7 +15,7 @@
 
     <v-toolbar-title>
       <router-link class="title-link" :to="{ name: 'Home' }"
-        >Kdrama watchers</router-link
+        >K-watchers</router-link
       >
     </v-toolbar-title>
 

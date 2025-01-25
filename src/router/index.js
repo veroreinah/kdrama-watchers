@@ -96,7 +96,7 @@ const router = new VueRouter({
 });
 
 const updateTitle = (to) => {
-  let windowTitle = "Kdrama watchers";
+  let windowTitle = "K-watchers";
   if (to.meta && to.meta.title) {
     if (typeof to.meta.title === "string") {
       windowTitle += ` - ${to.meta.title}`;
