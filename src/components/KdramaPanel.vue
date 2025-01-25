@@ -89,9 +89,12 @@
               <v-card>
                 <v-toolbar color="primary" dark>Eliminar</v-toolbar>
                 <v-card-text class="pa-5">
-                  ¿Seguro que quieres eliminar este kdrama? Esta acción no se
-                  puede deshacer, pero podrás volver a añadirlo desde el
-                  buscador.
+                  ¿Seguro que quieres eliminar
+                  <template v-if="kdrama.isMovie">esta película</template>
+                  <template v-else>este kdrama</template>? Esta acción no se
+                  puede deshacer, pero podrás volver a
+                  <template v-if="kdrama.isMovie">añadirla</template>
+                  <template v-else>añadirlo</template> desde el buscador.
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -158,7 +161,9 @@
         </v-col>
         <v-col cols="10">
           <div class="text-right text-caption font-italic">
-            Añadido: {{ getDateTime(kdrama.dateAdd) }}
+            <template v-if="kdrama.isMovie">Añadida</template>
+            <template v-else>Añadido</template>:
+            {{ getDateTime(kdrama.dateAdd) }}
             <template v-if="kdrama.dateUpdated">
               - Última actualización: {{ getDateTime(kdrama.dateUpdated) }}
             </template>

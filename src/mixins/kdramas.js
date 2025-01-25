@@ -56,12 +56,19 @@ export const kdramas = {
           .add(kdrama)
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama "${
-                kdrama.title
-              }" añadido correctamente a la lista ${this.getListProp(
-                kdrama.list,
-                "label"
-              )}.`,
+              msg: kdrama.isMovie
+                ? `Película "${
+                    kdrama.title
+                  }" añadida correctamente a la lista ${this.getListProp(
+                    kdrama.list,
+                    "label"
+                  )}.`
+                : `Kdrama "${
+                    kdrama.title
+                  }" añadido correctamente a la lista ${this.getListProp(
+                    kdrama.list,
+                    "label"
+                  )}.`,
               color: "success",
               timeout: 5000,
             });
@@ -71,7 +78,9 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: "Ha habido un error al añadir el kdrama.",
+              msg: `Ha habido un error al añadir ${
+                kdrama.isMovie ? "la película" : "el kdrama"
+              }.`,
               color: "error",
               timeout: 10000,
             });
@@ -89,7 +98,9 @@ export const kdramas = {
           .set(kdrama)
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama "${kdrama.title}" actualizado correctamente.`,
+              msg: kdrama.isMovie
+                ? `Película "${kdrama.title}" actualizada correctamente.`
+                : `Kdrama "${kdrama.title}" actualizado correctamente.`,
               color: "success",
               timeout: 5000,
             });
@@ -99,7 +110,9 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: "Ha habido un error al actualizar el kdrama.",
+              msg: `Ha habido un error al actualizar ${
+                kdrama.isMovie ? "la película" : "el kdrama"
+              }.`,
               color: "error",
               timeout: 10000,
             });
@@ -117,7 +130,9 @@ export const kdramas = {
           .delete()
           .then(() => {
             this.setSnackbar({
-              msg: `Kdrama "${this.kdrama.title}" eliminado.`,
+              msg: kdrama.isMovie
+                ? `Película "${kdrama.title}" eliminada.`
+                : `Kdrama "${kdrama.title}" eliminado.`,
               color: "success",
               timeout: 5000,
             });
@@ -127,7 +142,9 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: "Ha habido un error al eliminar el kdrama.",
+              msg: `Ha habido un error al eliminar ${
+                kdrama.isMovie ? "la película" : "el kdrama"
+              }.`,
               color: "error",
               timeout: 10000,
             });

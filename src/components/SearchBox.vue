@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     v-model="query"
-    label="Buscar un kdrama..."
+    label="Buscar kdramas, películas..."
     outlined
     clearable
     autofocus

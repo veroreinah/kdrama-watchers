@@ -47,7 +47,7 @@
           :event-ripple="false"
           :weekdays="weekdays"
           type="month"
-          event-more-text="más kdramas"
+          event-more-text="más..."
           @click:more="clickMore"
         ></v-calendar>
       </v-sheet>
@@ -56,7 +56,7 @@
     <div v-else-if="kdramas && !kdramas.length">
       <v-card color="primary" dark>
         <v-card-title class="headline">
-          <span>No hay ningún kdrama en tu calendario.</span>
+          <span>No hay contenido en tu calendario.</span>
         </v-card-title>
       </v-card>
     </div>

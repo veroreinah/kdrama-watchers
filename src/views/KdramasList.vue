@@ -46,7 +46,7 @@
       <v-card color="primary" dark>
         <v-card-title class="headline">
           <span
-            >No has añadido ningún kdrama a la lista
+            >No has añadido contenido a la lista
             <strong>"{{ getListProp(list, "label") }}"</strong>.</span
           >
         </v-card-title>

@@ -3,7 +3,7 @@ import cardBg7 from "@/assets/img/card-bg-7.jpg";
 export const statistics = {
   data: () => ({
     cardsText: {
-      year: "Kdramas del año",
+      year: "Año",
       bestRate: "Mejor valoración",
       "already-watched": "Vistos",
       added: "Añadidos",
