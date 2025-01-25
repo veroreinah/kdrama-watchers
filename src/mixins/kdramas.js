@@ -6,7 +6,7 @@ import "firebase/firestore";
 export const kdramas = {
   data: () => ({
     db: undefined,
-    allowedContent: ["kdrama", "kpelícula"],
+    allowedContent: ["kdrama", "kpelícula", "kprogramas"],
   }),
   methods: {
     ...mapActions(["setSnackbar"]),
@@ -39,7 +39,7 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: "Ha habido un error al recuperar el listado de kdramas.",
+              msg: "Ha habido un error al recuperar el listado.",
               color: "error",
               timeout: 10000,
             });
@@ -57,13 +57,13 @@ export const kdramas = {
           .then(() => {
             this.setSnackbar({
               msg: kdrama.isMovie
-                ? `Película "${
+                ? `"${
                     kdrama.title
                   }" añadida correctamente a la lista ${this.getListProp(
                     kdrama.list,
                     "label"
                   )}.`
-                : `Kdrama "${
+                : `"${
                     kdrama.title
                   }" añadido correctamente a la lista ${this.getListProp(
                     kdrama.list,
@@ -78,9 +78,7 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: `Ha habido un error al añadir ${
-                kdrama.isMovie ? "la película" : "el kdrama"
-              }.`,
+              msg: "Ha habido un error al añadir este contenido",
               color: "error",
               timeout: 10000,
             });
@@ -99,8 +97,8 @@ export const kdramas = {
           .then(() => {
             this.setSnackbar({
               msg: kdrama.isMovie
-                ? `Película "${kdrama.title}" actualizada correctamente.`
-                : `Kdrama "${kdrama.title}" actualizado correctamente.`,
+                ? `"${kdrama.title}" actualizada correctamente.`
+                : `"${kdrama.title}" actualizado correctamente.`,
               color: "success",
               timeout: 5000,
             });
@@ -110,9 +108,7 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: `Ha habido un error al actualizar ${
-                kdrama.isMovie ? "la película" : "el kdrama"
-              }.`,
+              msg: "Ha habido un error al actualizar los datos.",
               color: "error",
               timeout: 10000,
             });
@@ -131,8 +127,8 @@ export const kdramas = {
           .then(() => {
             this.setSnackbar({
               msg: kdrama.isMovie
-                ? `Película "${kdrama.title}" eliminada.`
-                : `Kdrama "${kdrama.title}" eliminado.`,
+                ? `"${kdrama.title}" eliminada.`
+                : `"${kdrama.title}" eliminado.`,
               color: "success",
               timeout: 5000,
             });
@@ -142,9 +138,7 @@ export const kdramas = {
           .catch((error) => {
             console.error(error);
             this.setSnackbar({
-              msg: `Ha habido un error al eliminar ${
-                kdrama.isMovie ? "la película" : "el kdrama"
-              }.`,
+              msg: "Ha habido un error al eliminar este contenido.",
               color: "error",
               timeout: 10000,
             });
@@ -248,6 +242,11 @@ export const kdramas = {
                     kdrama.categories &&
                     kdrama.categories.some(
                       (category) => category.toLowerCase() === "kpelícula"
+                    ),
+                  isShow:
+                    kdrama.categories &&
+                    kdrama.categories.some(
+                      (category) => category.toLowerCase() === "kprogramas"
                     ),
                 }));
 
@@ -364,7 +363,7 @@ export const kdramas = {
 
         let synopsis = null;
         let synopsisMatch = lastRevision.match(
-          /Sinopsis\s*?={2,3}\n(.*?)\n={2,3}/s
+          /Sinopsis\s*?={2,3}\n(.*?)\n\d?={2,3}/s
         );
         if (synopsisMatch && synopsisMatch.length === 2) {
           synopsis =

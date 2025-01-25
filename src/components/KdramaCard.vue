@@ -167,14 +167,6 @@ export default {
         ...extraInfo,
         id: savedData.id,
         dateUpdated: new Date().toJSON(),
-        watchDates: [
-          {
-            id: 0,
-            dateStart: savedData.dateStart,
-            dateEnd: null,
-            list: savedData.list,
-          },
-        ],
       };
 
       delete toUpdate.imageName;

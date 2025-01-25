@@ -91,6 +91,7 @@
                 <v-card-text class="pa-5">
                   ¿Seguro que quieres eliminar
                   <template v-if="kdrama.isMovie">esta película</template>
+                  <template v-else-if="kdrama.isShow">este programa</template>
                   <template v-else>este kdrama</template>? Esta acción no se
                   puede deshacer, pero podrás volver a
                   <template v-if="kdrama.isMovie">añadirla</template>
