@@ -30,6 +30,7 @@
         justify-center
         text-center
       "
+      style="width: 100%;"
     >
       <v-card-subtitle v-if="card.text" class="pb-0">
         {{ card.text }}
@@ -41,10 +42,10 @@
         {{ card.emoji }}
       </v-card-text>
 
-      <v-list v-if="card.data">
+      <v-list v-if="card.data" style="width: 100%;">
         <v-list-item v-for="kdrama in card.data" :key="kdrama.id">
           <v-list-item-content>
-            <v-list-item-title v-text="kdrama.title"></v-list-item-title>
+            <v-list-item-title>{{ kdrama.title }}</v-list-item-title>
           </v-list-item-content>
 
           <v-list-item-action>
